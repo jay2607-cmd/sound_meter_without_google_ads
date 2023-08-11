@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sound_meter/screens/recorder_listview.dart';
 import 'package:sound_meter/screens/recorder_view.dart';
@@ -21,9 +22,34 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
   Directory appDirectory = Directory("");
   List<String> records = [];
 
+  late BannerAd bannerAd;
+  bool isLoaded = false;
+
+  // testing ad id
+  var adUnit = "ca-app-pub-3940256099942544/6300978111";
+
+  initBannerAd() {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(onAdLoaded: (ad) {
+        setState(() {
+          isLoaded = true;
+        });
+      }, onAdFailedToLoad: (ad, error) {
+        ad.dispose();
+        print(error);
+      }),
+      request: AdRequest(),
+    );
+
+    bannerAd.load();
+  }
+
   @override
   void initState() {
     super.initState();
+    initBannerAd();
     getApplicationDocumentsDirectory().then((value) {
       appDirectory = value;
       appDirectory.list().listen((onData) {
@@ -57,8 +83,8 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
                       return AlertDialog(
                         title: const Text('Warning!',
                             style: TextStyle(color: Colors.red)),
-                        content:
-                        const Text('Do you really want to delete all files!'),
+                        content: const Text(
+                            'Do you really want to delete all files!'),
                         actions: [
                           TextButton(
                             child: const Text('Cancel'),
@@ -104,7 +130,6 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
           ),
         ),
       ),
-
       body: Column(
         children: [
           Expanded(
@@ -122,6 +147,13 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
           ),
         ],
       ),
+      bottomNavigationBar: isLoaded
+          ? SizedBox(
+              height: bannerAd.size.height.toDouble(),
+              width: bannerAd.size.width.toDouble(),
+              child: AdWidget(ad: bannerAd),
+            )
+          : const SizedBox(),
     );
   }
 

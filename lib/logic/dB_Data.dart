@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:noise_meter/noise_meter.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -61,12 +62,37 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
   ChartSeriesController? _chartSeriesController;
   late int previousMillis;
 
+  late BannerAd bannerAd;
+  bool isLoaded = false;
+
+  // testing ad id
+  var adUnit = "ca-app-pub-3940256099942544/6300978111";
+
   @override
   void initState() {
     super.initState();
     noiseMeter = NoiseMeter(onError);
     start();
     WidgetsBinding.instance.addObserver(this);
+    initBannerAd();
+  }
+
+  initBannerAd() {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(onAdLoaded: (ad) {
+        setState(() {
+          isLoaded = true;
+        });
+      }, onAdFailedToLoad: (ad, error) {
+        ad.dispose();
+        print(error);
+      }),
+      request: AdRequest(),
+    );
+
+    bannerAd.load();
   }
 
   @override
@@ -269,6 +295,13 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
             ),
           ],
         ),
+        bottomNavigationBar: isLoaded
+            ? SizedBox(
+                height: bannerAd.size.height.toDouble(),
+                width: bannerAd.size.width.toDouble(),
+                child: AdWidget(ad: bannerAd),
+              )
+            : const SizedBox(),
       ),
     );
   }

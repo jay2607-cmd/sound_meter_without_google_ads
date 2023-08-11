@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sound_meter/screens/views/history_meter.dart';
-
 
 import '../boxes/boxes.dart';
 import '../database/save_model.dart';
@@ -31,6 +30,36 @@ class SaveMainState extends State<SaveMain> {
       required this.area});
 
   final box = Boxes.getData();
+
+  late BannerAd bannerAd;
+  bool isLoaded = false;
+
+  // testing ad id
+  var adUnit = "ca-app-pub-3940256099942544/6300978111";
+
+  initBannerAd() {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(onAdLoaded: (ad) {
+        setState(() {
+          isLoaded = true;
+        });
+      }, onAdFailedToLoad: (ad, error) {
+        ad.dispose();
+        print(error);
+      }),
+      request: AdRequest(),
+    );
+
+    bannerAd.load();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initBannerAd();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +101,6 @@ class SaveMainState extends State<SaveMain> {
                   setState(() {});
                 }),
           ),
-
         ],
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -219,7 +247,8 @@ class SaveMainState extends State<SaveMain> {
                                     setState(() {});
                                   },
                                   icon: Image.asset(
-                                    "assets/images/d2.png",                                  ),
+                                    "assets/images/d2.png",
+                                  ),
                                 ),
                               ],
                             ),
@@ -234,6 +263,13 @@ class SaveMainState extends State<SaveMain> {
           );
         },
       ),
+      bottomNavigationBar: isLoaded
+          ? SizedBox(
+              height: bannerAd.size.height.toDouble(),
+              width: bannerAd.size.width.toDouble(),
+              child: AdWidget(ad: bannerAd),
+            )
+          : const SizedBox(),
     );
   }
 
@@ -245,5 +281,8 @@ class SaveMainState extends State<SaveMain> {
   void deleteAll() async {
     box.clear();
   }
+
+
+
 
 }

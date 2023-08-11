@@ -2,12 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-
 import '../../logic/dB_meter.dart';
 import '../../utils/constants.dart';
 
 class HistoryMeter extends StatefulWidget {
-
   const HistoryMeter(
       {super.key,
       required this.maxDB,
@@ -24,8 +22,21 @@ class HistoryMeter extends StatefulWidget {
 
 class _HistoryMeterState extends State<HistoryMeter> {
 
+  late InterstitialAd interstitialAd;
+  bool isInterstitaleLoaded = false;
+
+  // interstitle app id
+  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
+
+
   NativeAd? nativeAd;
   bool isNativeAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initInterstitialAd();
+  }
 
   @override
   void didChangeDependencies() {
@@ -65,7 +76,7 @@ class _HistoryMeterState extends State<HistoryMeter> {
               width: 28,
             ),
             onPressed: () {
-              Navigator.pop(context);
+              _willPopScreen();
             },
           ),
         ),
@@ -77,7 +88,6 @@ class _HistoryMeterState extends State<HistoryMeter> {
           ),
         ),
       ),
-
       body: Column(
         children: [
           dBMeter(widget.maxDB),
@@ -91,8 +101,7 @@ class _HistoryMeterState extends State<HistoryMeter> {
                     Text(
                       "Noise Detected :",
                       style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
+                          fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       " ${widget.maxDB.toStringAsFixed(2)} dB",
@@ -106,15 +115,18 @@ class _HistoryMeterState extends State<HistoryMeter> {
                 SizedBox(
                   height: 4,
                 ),
-                Text("Area : ${widget.area}", style: const TextStyle(fontSize: 13)),
+                Text("Area : ${widget.area}",
+                    style: const TextStyle(fontSize: 13)),
                 SizedBox(
                   height: 4,
                 ),
-                Text("Date : ${widget.date}", style: const TextStyle(fontSize: 13)),
+                Text("Date : ${widget.date}",
+                    style: const TextStyle(fontSize: 13)),
                 SizedBox(
                   height: 4,
                 ),
-                Text("Time : ${widget.time}", style: const TextStyle(fontSize: 13)),
+                Text("Time : ${widget.time}",
+                    style: const TextStyle(fontSize: 13)),
               ],
             ),
           )
@@ -122,15 +134,56 @@ class _HistoryMeterState extends State<HistoryMeter> {
       ),
       bottomNavigationBar: isNativeAdLoaded
           ? Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        height: 265,
-        child: AdWidget(
-          ad: nativeAd!,
-        ),
-      )
+              decoration: const BoxDecoration(
+                color: Colors.white,
+              ),
+              height: 265,
+              child: AdWidget(
+                ad: nativeAd!,
+              ),
+            )
           : SizedBox(),
     );
+
+
+  }
+
+  initInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: adInterstitaleUnit,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad) {
+        interstitialAd = ad;
+        setState(() {
+          isInterstitaleLoaded = true;
+        });
+        interstitialAd.fullScreenContentCallback =
+            FullScreenContentCallback(onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+
+              setState(() {
+                isInterstitaleLoaded = false;
+              });
+
+              // do your task for close activity
+              Navigator.pop(context);
+            }, onAdFailedToShowFullScreenContent: (ad, error) {
+              ad.dispose();
+
+              setState(() {
+                isInterstitaleLoaded = false;
+              });
+            });
+      }, onAdFailedToLoad: (error) {
+        interstitialAd.dispose();
+      }),
+    );
+  }
+
+  _willPopScreen() {
+
+    if (isInterstitaleLoaded) {
+      interstitialAd.show();
+    }
   }
 }

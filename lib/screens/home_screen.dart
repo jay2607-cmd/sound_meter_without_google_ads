@@ -20,9 +20,53 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
+
+  late InterstitialAd interstitialAd;
+  bool isLoaded = false;
+
+  // interstitle app id
+  var adUnit = "ca-app-pub-3940256099942544/1033173712";
+
+  initInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: adUnit,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad) {
+        interstitialAd = ad;
+        setState(() {
+          isLoaded = true;
+        });
+        interstitialAd.fullScreenContentCallback =
+            FullScreenContentCallback(onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+
+              setState(() {
+                isLoaded = false;
+              });
+
+            }, onAdFailedToShowFullScreenContent: (ad, error) {
+              ad.dispose();
+
+              setState(() {
+                isLoaded = false;
+              });
+            });
+      }, onAdFailedToLoad: (error) {
+        interstitialAd.dispose();
+      }),
+    );
+
+    if (isLoaded) {
+      interstitialAd.show();
+    }
+
+  }
+
   @override
   void initState() {
     super.initState();
+    initInterstitialAd();
+
     Timer(
         const Duration(milliseconds: 3500),
         () => Navigator.pushReplacement(
@@ -30,6 +74,7 @@ class SplashScreenState extends State<SplashScreen> {
             MaterialPageRoute(
                 builder: (context) =>
                     HomeScreen(cameras: cameras, logError: logError))));
+
   }
 
 /*  @override

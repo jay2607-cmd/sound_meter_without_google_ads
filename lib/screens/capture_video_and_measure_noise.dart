@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive/hive.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:camera/camera.dart';
@@ -49,8 +50,29 @@ class CameraExampleHome extends StatefulWidget {
 
 class _CameraExampleHomeState extends State<CameraExampleHome>
     with WidgetsBindingObserver, TickerProviderStateMixin {
+  late BannerAd bannerAd;
+  bool isLoaded = false;
 
+  // testing ad id
+  var adUnit = "ca-app-pub-3940256099942544/6300978111";
 
+  initBannerAd() {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(onAdLoaded: (ad) {
+        setState(() {
+          isLoaded = true;
+        });
+      }, onAdFailedToLoad: (ad, error) {
+        ad.dispose();
+        print(error);
+      }),
+      request: AdRequest(),
+    );
+
+    bannerAd.load();
+  }
 
   // variable for saving screenshot
   final GlobalKey _key = GlobalKey();
@@ -96,6 +118,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   @override
   void initState() {
     super.initState();
+    initBannerAd();
     noiseMeter = NoiseMeter(onError);
     WidgetsBinding.instance.addObserver(this);
 
@@ -134,7 +157,6 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     _exposureModeControlRowAnimationController.dispose();
     // noiseStop();
     super.dispose();
-
   }
 
   void onData(NoiseReading noiseReading) {
@@ -294,7 +316,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
               ),
             ),
             // _modeControlRowWidget(),
-           /* Padding(
+            /* Padding(
               padding: const EdgeInsets.all(5.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -338,6 +360,13 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
             Container(height: 350, child: dBMeter(maxDB)),
           ],
         ),
+        bottomNavigationBar: isLoaded
+            ? SizedBox(
+                height: bannerAd.size.height.toDouble(),
+                width: bannerAd.size.width.toDouble(),
+                child: AdWidget(ad: bannerAd),
+              )
+            : const SizedBox(),
       ),
     );
   }
@@ -774,7 +803,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
         //     onPressed: () {
         //       _cameraTogglesRowWidget();
         //     }),
-    _cameraTogglesRowWidget(),
+        _cameraTogglesRowWidget(),
       ],
     );
   }
