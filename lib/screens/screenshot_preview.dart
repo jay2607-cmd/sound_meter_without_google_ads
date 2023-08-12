@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -26,6 +27,85 @@ class ScreenshotPreview extends StatefulWidget {
 }
 
 class _ScreenshotPreviewState extends State<ScreenshotPreview> {
+
+  late InterstitialAd interstitialAd;
+  bool isInterstitaleLoaded = false;
+
+  // interstitle app id
+  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
+
+  late BannerAd bannerAd;
+  bool isLoaded = false;
+
+  // testing ad id
+  var adUnit = "ca-app-pub-3940256099942544/6300978111";
+
+  initBannerAd() {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(onAdLoaded: (ad) {
+        setState(() {
+          isLoaded = true;
+        });
+      }, onAdFailedToLoad: (ad, error) {
+        ad.dispose();
+        print(error);
+      }),
+      request: AdRequest(),
+    );
+
+    bannerAd.load();
+  }
+
+  initInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: adInterstitaleUnit,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad) {
+        interstitialAd = ad;
+        setState(() {
+          isInterstitaleLoaded = true;
+        });
+        interstitialAd.fullScreenContentCallback =
+            FullScreenContentCallback(onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+
+              setState(() {
+                isInterstitaleLoaded = false;
+              });
+
+              // do your task for close activity
+              Navigator.pop(context);
+            }, onAdFailedToShowFullScreenContent: (ad, error) {
+              ad.dispose();
+
+              setState(() {
+                isInterstitaleLoaded = false;
+              });
+            });
+      }, onAdFailedToLoad: (error) {
+        interstitialAd.dispose();
+      }),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initBannerAd();
+    initInterstitialAd();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    if (isInterstitaleLoaded) {
+      interstitialAd.show();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     print(widget.filePath);
@@ -142,10 +222,25 @@ class _ScreenshotPreviewState extends State<ScreenshotPreview> {
               )
             ],
           ),
+          bottomNavigationBar: Container(
+            margin: EdgeInsets.all(5),
+            child: isLoaded
+                ? SizedBox(
+              height: bannerAd.size.height.toDouble(),
+              width: bannerAd.size.width.toDouble(),
+              child: AdWidget(ad: bannerAd),
+            )
+                : SizedBox(
+              height: bannerAd.size.height.toDouble(),
+              width: bannerAd.size.width.toDouble(),
+            ),
+          ),
         ),
       ),
     );
   }
+
+
 
   Future<void> deleteFile(String filePath, int index) async {
     try {

@@ -19,53 +19,52 @@ class SplashScreen extends StatefulWidget {
   SplashScreenState createState() => SplashScreenState();
 }
 
-class SplashScreenState extends State<SplashScreen> {
+class SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver {
 
   late InterstitialAd interstitialAd;
-  bool isLoaded = false;
+  bool isInterstitaleLoaded = false;
 
   // interstitle app id
-  var adUnit = "ca-app-pub-3940256099942544/1033173712";
+  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
 
   initInterstitialAd() {
     InterstitialAd.load(
-      adUnitId: adUnit,
+      adUnitId: adInterstitaleUnit,
       request: AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad) {
         interstitialAd = ad;
+        isInterstitaleLoaded = true;
         setState(() {
-          isLoaded = true;
         });
         interstitialAd.fullScreenContentCallback =
             FullScreenContentCallback(onAdDismissedFullScreenContent: (ad) {
               ad.dispose();
 
               setState(() {
-                isLoaded = false;
+                isInterstitaleLoaded = false;
               });
 
+              // do your task for close activity
+              Navigator.pop(context);
             }, onAdFailedToShowFullScreenContent: (ad, error) {
               ad.dispose();
 
               setState(() {
-                isLoaded = false;
+                isInterstitaleLoaded = false;
               });
             });
       }, onAdFailedToLoad: (error) {
         interstitialAd.dispose();
       }),
     );
-
-    if (isLoaded) {
-      interstitialAd.show();
-    }
-
   }
 
   @override
   void initState() {
     super.initState();
+
     initInterstitialAd();
+
 
     Timer(
         const Duration(milliseconds: 3500),
@@ -75,6 +74,17 @@ class SplashScreenState extends State<SplashScreen> {
                 builder: (context) =>
                     HomeScreen(cameras: cameras, logError: logError))));
 
+
+  }
+
+
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (isInterstitaleLoaded) {
+      interstitialAd.show();
+    }
   }
 
 /*  @override

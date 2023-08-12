@@ -20,7 +20,7 @@ class HistoryMeter extends StatefulWidget {
   State<HistoryMeter> createState() => _HistoryMeterState();
 }
 
-class _HistoryMeterState extends State<HistoryMeter> {
+class _HistoryMeterState extends State<HistoryMeter> with WidgetsBindingObserver{
 
   late InterstitialAd interstitialAd;
   bool isInterstitaleLoaded = false;
@@ -39,8 +39,26 @@ class _HistoryMeterState extends State<HistoryMeter> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    if (isInterstitaleLoaded) {
+      interstitialAd.show();
+    }
+  }
+
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   super.didChangeAppLifecycleState(state);
+  //
+  //   if(state == AppLifecycleState.paused) {
+  //     if (isInterstitaleLoaded) {
+  //       interstitialAd.show();
+  //     }
+  //   }
+  // }
+
+  @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     loadNativeAd();
   }
@@ -76,7 +94,7 @@ class _HistoryMeterState extends State<HistoryMeter> {
               width: 28,
             ),
             onPressed: () {
-              _willPopScreen();
+              Navigator.pop(context);
             },
           ),
         ),
@@ -90,7 +108,7 @@ class _HistoryMeterState extends State<HistoryMeter> {
       ),
       body: Column(
         children: [
-          dBMeter(widget.maxDB),
+          Container(height: 330, child: dBMeter(widget.maxDB)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8),
             child: Column(
@@ -144,8 +162,6 @@ class _HistoryMeterState extends State<HistoryMeter> {
             )
           : SizedBox(),
     );
-
-
   }
 
   initInterstitialAd() {
@@ -180,10 +196,4 @@ class _HistoryMeterState extends State<HistoryMeter> {
     );
   }
 
-  _willPopScreen() {
-
-    if (isInterstitaleLoaded) {
-      interstitialAd.show();
-    }
-  }
 }

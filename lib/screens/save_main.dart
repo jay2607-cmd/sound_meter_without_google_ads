@@ -263,13 +263,19 @@ class SaveMainState extends State<SaveMain> {
           );
         },
       ),
-      bottomNavigationBar: isLoaded
-          ? SizedBox(
-              height: bannerAd.size.height.toDouble(),
-              width: bannerAd.size.width.toDouble(),
-              child: AdWidget(ad: bannerAd),
-            )
-          : const SizedBox(),
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.all(5),
+        child: isLoaded
+            ? SizedBox(
+                height: bannerAd.size.height.toDouble(),
+                width: bannerAd.size.width.toDouble(),
+                child: AdWidget(ad: bannerAd),
+              )
+            : SizedBox(
+                height: bannerAd.size.height.toDouble(),
+                width: bannerAd.size.width.toDouble(),
+              ),
+      ),
     );
   }
 
@@ -281,8 +287,4 @@ class SaveMainState extends State<SaveMain> {
   void deleteAll() async {
     box.clear();
   }
-
-
-
-
 }

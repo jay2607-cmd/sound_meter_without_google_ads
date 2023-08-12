@@ -729,18 +729,60 @@ class _PickFileState extends State<PickFile> {
     }
   }
 
+  late InterstitialAd interstitialAd;
+  bool isInterstitaleLoaded = false;
+
+  // interstitle app id
+  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
+
+  initInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: adInterstitaleUnit,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad) {
+        interstitialAd = ad;
+        setState(() {
+          isInterstitaleLoaded = true;
+        });
+        interstitialAd.fullScreenContentCallback =
+            FullScreenContentCallback(onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+
+          setState(() {
+            isInterstitaleLoaded = false;
+          });
+
+          // do your task for close activity
+          Navigator.pop(context);
+        }, onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
+
+          setState(() {
+            isInterstitaleLoaded = false;
+          });
+        });
+      }, onAdFailedToLoad: (error) {
+        interstitialAd.dispose();
+      }),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     noiseMeter = NoiseMeter(onError);
     initBannerAd();
+    initInterstitialAd();
   }
 
   @override
   void dispose() {
     stop();
-    controller.dispose();
+
     super.dispose();
+    if (isInterstitaleLoaded) {
+      interstitialAd.show();
+    }
   }
 
   // This funcion will helps you to pick and Image from Gallery
@@ -915,13 +957,19 @@ class _PickFileState extends State<PickFile> {
                   ),
               ]),
         ),
-        bottomNavigationBar: isLoaded
-            ? SizedBox(
-                height: bannerAd.size.height.toDouble(),
-                width: bannerAd.size.width.toDouble(),
-                child: AdWidget(ad: bannerAd),
-              )
-            : const SizedBox(),
+        bottomNavigationBar: Container(
+          margin: EdgeInsets.all(5),
+          child: isLoaded
+              ? SizedBox(
+                  height: bannerAd.size.height.toDouble(),
+                  width: bannerAd.size.width.toDouble(),
+                  child: AdWidget(ad: bannerAd),
+                )
+              : SizedBox(
+                  height: bannerAd.size.height.toDouble(),
+                  width: bannerAd.size.width.toDouble(),
+                ),
+        ),
       ),
     );
   }
