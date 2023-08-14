@@ -196,9 +196,6 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     _exposureModeControlRowAnimationController.dispose();
     // noiseStop();
     super.dispose();
-    if (isInterstitaleLoaded) {
-      interstitialAd.show();
-    }
   }
 
   void onData(NoiseReading noiseReading) {
@@ -264,156 +261,170 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      key: _key,
-      child: Scaffold(
-        appBar: AppBar(
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
+    return WillPopScope(
+      onWillPop: () async {
+        if (isInterstitaleLoaded) {
+          interstitialAd.show();
+          return false; // Prevent the default back navigation
+        } else {
+          return true; // Allow the default back navigation
+        }
+      },
+      child: RepaintBoundary(
+        key: _key,
+        child: Scaffold(
+          appBar: AppBar(
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ImageListScreen()));
+                    },
+                    icon: Image.asset("assets/images/history.png")),
+              )
+            ],
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
               child: IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ImageListScreen()));
-                  },
-                  icon: Image.asset("assets/images/history.png")),
-            )
-          ],
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: IconButton(
-              icon: Image.asset(
-                'assets/images/back.png',
-                height: 28,
-                width: 28,
+                icon: Image.asset(
+                  'assets/images/back.png',
+                  height: 28,
+                  width: 28,
+                ),
+                onPressed: () {
+                  if (isInterstitaleLoaded) {
+                    interstitialAd.show();
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
               ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
+            ),
+            title: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                "Camera",
+                style: kAppbarStyle,
+              ),
             ),
           ),
-          title: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text(
-              "Camera",
-              style: kAppbarStyle,
-            ),
-          ),
-        ),
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.black,
-                      border: Border.all(
-                        color: controller != null &&
-                                controller!.value.isRecordingVideo
-                            ? Colors.redAccent
-                            : Colors.grey,
-                        width: 3.0,
-                      ),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: Center(
-                      child: Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.center,
-                            child: _cameraPreviewWidget(),
-                          ),
-                          Align(
-                              alignment: Alignment.bottomCenter,
-                              child: _captureControlRowWidget()),
-                          Align(
-                              alignment: Alignment.topRight,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(30),
-                                        color: Color(0xff4EACD2)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: Text(
-                                        " ${maxDB.toStringAsFixed(0)} dB ",
-                                        style: TextStyle(
-                                          color: Colors.white,
+          body: Column(
+            children: <Widget>[
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.black,
+                        border: Border.all(
+                          color: controller != null &&
+                                  controller!.value.isRecordingVideo
+                              ? Colors.redAccent
+                              : Colors.grey,
+                          width: 3.0,
+                        ),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: Center(
+                        child: Stack(
+                          children: [
+                            Align(
+                              alignment: Alignment.center,
+                              child: _cameraPreviewWidget(),
+                            ),
+                            Align(
+                                alignment: Alignment.bottomCenter,
+                                child: _captureControlRowWidget()),
+                            Align(
+                                alignment: Alignment.topRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(30),
+                                          color: Color(0xff4EACD2)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Text(
+                                          " ${maxDB.toStringAsFixed(0)} dB ",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                      ),
-                                    )),
-                              )),
-                        ],
+                                      )),
+                                )),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            // _modeControlRowWidget(),
-            /* Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  // _cameraTogglesRowWidget(),
-                  // _thumbnailWidget(),
+              // _modeControlRowWidget(),
+              /* Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    // _cameraTogglesRowWidget(),
+                    // _thumbnailWidget(),
+                  ],
+                ),
+              ),*/
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8),
+                      child: Container(
+                        height: 50,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Color(0xFF1C95FF),
+                        ),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              _captureScreenshot();
+                              showInSnackBar('Screenshot Captured');
+                            },
+                            child: const Text(
+                              "Screenshot",
+                              style: kButtonTextStyle,
+                            )),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),*/
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8),
-                    child: Container(
-                      height: 50,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Color(0xFF1C95FF),
-                      ),
-                      child: ElevatedButton(
-                          onPressed: () {
-                            _captureScreenshot();
-                            showInSnackBar('Screenshot Captured');
-                          },
-                          child: const Text(
-                            "Screenshot",
-                            style: kButtonTextStyle,
-                          )),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              width: 25,
-            ),
+              SizedBox(
+                width: 25,
+              ),
 
-            Container(height: 320, child: dBMeter(maxDB)),
-          ],
-        ),
-        bottomNavigationBar: Container(
-          margin: EdgeInsets.all(5),
-          child: isLoaded
-              ? SizedBox(
-                  height: bannerAd.size.height.toDouble(),
-                  width: bannerAd.size.width.toDouble(),
-                  child: AdWidget(ad: bannerAd),
-                )
-              : SizedBox(
-                  height: bannerAd.size.height.toDouble(),
-                  width: bannerAd.size.width.toDouble(),
-                ),
+              Container(height: 320, child: dBMeter(maxDB)),
+            ],
+          ),
+          bottomNavigationBar: Container(
+            margin: EdgeInsets.all(5),
+            child: isLoaded
+                ? SizedBox(
+                    height: bannerAd.size.height.toDouble(),
+                    width: bannerAd.size.width.toDouble(),
+                    child: AdWidget(ad: bannerAd),
+                  )
+                : SizedBox(
+                    height: bannerAd.size.height.toDouble(),
+                    width: bannerAd.size.width.toDouble(),
+                  ),
+          ),
         ),
       ),
     );

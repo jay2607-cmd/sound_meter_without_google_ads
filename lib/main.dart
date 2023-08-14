@@ -1,6 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive/hive.dart';
 
 import 'package:path_provider/path_provider.dart';
@@ -16,8 +18,26 @@ void logError(String code, String? message) {
   print('Error: $code${message == null ? '' : '\nError Message: $message'}');
 }
 
+bool verifyInstallerId() {
+  // A list with valid installers package name
+  List<String> validInstallers = [
+    "com.android.vending",
+    "com.google.android.feedback"
+  ];
+
+  // The package name of the app that has installed your app
+  final String installer = "com.example.sound_meter";
+
+  // true if your app has been downloaded from Play Store
+  return installer != null && validInstallers.contains(installer);
+}
+
 Future<void> main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+
+  await dotenv.load();
 
   try {
     cameras = await availableCameras();
@@ -37,6 +57,8 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
   ]);
 
+  bool showAds = verifyInstallerId();
+  print("showAds $showAds");
   runApp(const MyApp());
 }
 
@@ -47,7 +69,39 @@ class MyApp extends StatefulWidget {
   State<StatefulWidget> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  AppOpenAdManager appOpenAdManager = AppOpenAdManager();
+  bool isPaused = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    appOpenAdManager.loadAd();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // TODO: implement didChangeAppLifecycleState
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      isPaused = true;
+    }
+    if (state == AppLifecycleState.resumed && isPaused) {
+      print("Resumed==========================");
+      appOpenAdManager.showAdIfAvailable();
+      isPaused = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -59,7 +113,71 @@ class _MyAppState extends State<MyApp> {
             Theme.of(context).textTheme,
           ),
         ),
-        home: SplashScreen()
+        home: const SplashScreen());
+  }
+}
+
+class AppOpenAdManager {
+  AppOpenAd? _appOpenAd;
+  bool _isShowingAd = false;
+  static bool isLoaded = false;
+
+  /// Load an AppOpenAd.
+  void loadAd() {
+    AppOpenAd.load(
+      adUnitId: "ca-app-pub-3940256099942544/3419835294",
+      orientation: AppOpenAd.orientationPortrait,
+      request: const AdRequest(),
+      adLoadCallback: AppOpenAdLoadCallback(
+        onAdLoaded: (ad) {
+          print("Ad Loaded.................................");
+          _appOpenAd = ad;
+          isLoaded = true;
+        },
+        onAdFailedToLoad: (error) {
+          // Handle the error.
+        },
+      ),
     );
+  }
+
+  // Whether an ad is available to be shown.
+  bool get isAdAvailable {
+    return _appOpenAd != null;
+  }
+
+  void showAdIfAvailable() {
+    print(
+        "Called=====================================================================");
+    if (_appOpenAd == null) {
+      print('Tried to show ad before available.');
+      loadAd();
+      return;
+    }
+    if (_isShowingAd) {
+      print('Tried to show ad while already showing an ad.');
+      return;
+    }
+    // Set the fullScreenContentCallback and show the ad.
+    _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        _isShowingAd = true;
+        print('$ad onAdShowedFullScreenContent');
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        print('$ad onAdFailedToShowFullScreenContent: $error');
+        _isShowingAd = false;
+        ad.dispose();
+        _appOpenAd = null;
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        print('$ad onAdDismissedFullScreenContent');
+        _isShowingAd = false;
+        ad.dispose();
+        _appOpenAd = null;
+        loadAd();
+      },
+    );
+    _appOpenAd!.show();
   }
 }

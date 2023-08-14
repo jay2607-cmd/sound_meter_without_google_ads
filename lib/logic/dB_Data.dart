@@ -3,12 +3,14 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:noise_meter/noise_meter.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../boxes/boxes.dart';
 import '../database/save_model.dart';
+import '../google_ads.dart';
 import '../screens/save_main.dart';
 import '../utils/constants.dart';
 import 'dB_Chart.dart';
@@ -104,10 +106,11 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = "ca-app-pub-3940256099942544/6300978111";
+  var adUnit = dotenv.env['BANNER_AD_UNIT'] ?? "BANNER_AD_UNIT not found";
 
   @override
   void initState() {
+    print(adUnit);
     super.initState();
     noiseMeter = NoiseMeter(onError);
     start();
@@ -147,9 +150,6 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
   void dispose() {
     super.dispose();
     stop();
-    if (isInterstitaleLoaded) {
-      interstitialAd.show();
-    }
   }
 
   //method for taking noise data
@@ -213,142 +213,156 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
     if (chartData.length >= 100) {
       chartData.removeAt(0);
     }
-    return Container(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: IconButton(
-              icon: Image.asset(
-                'assets/images/back.png',
-                height: 28,
-                width: 28,
+    return WillPopScope(
+      onWillPop: () async {
+        if (isInterstitaleLoaded) {
+          interstitialAd.show();
+          return false; // Prevent the default back navigation
+        } else {
+          return true; // Allow the default back navigation
+        }
+      },
+      child: Container(
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: IconButton(
+                icon: Image.asset(
+                  'assets/images/back.png',
+                  height: 28,
+                  width: 28,
+                ),
+                onPressed: () {
+                  if (isInterstitaleLoaded) {
+                    interstitialAd.show();
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
               ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
+            ),
+            title: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                "Noise Detector",
+                style: kAppbarStyle,
+              ),
             ),
           ),
-          title: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text(
-              "Noise Detector",
-              style: kAppbarStyle,
-            ),
-          ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: Container(
-          margin: EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onDoubleTap: () {},
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          floatingActionButton: Container(
+            margin: EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onDoubleTap: () {},
+                    child: FloatingActionButton.extended(
+                      heroTag: isRecording ? 'STOP' : 'START',
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                      label: Text(
+                        isRecording ? 'STOP' : 'START',
+                        style: kButtonTextStyle,
+                      ),
+                      onPressed: isRecording ? stop : start,
+                      backgroundColor:
+                          isRecording ? Color(0xFFFF5959) : Color(0xFF1C95FF),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 15,
+                ),
+                Expanded(
                   child: FloatingActionButton.extended(
-                    heroTag: isRecording ? 'STOP' : 'START',
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                    label: Text(
-                      isRecording ? 'STOP' : 'START',
+                    label: const Text(
+                      "SAVE",
                       style: kButtonTextStyle,
                     ),
-                    onPressed: isRecording ? stop : start,
-                    backgroundColor:
-                        isRecording ? Color(0xFFFF5959) : Color(0xFF1C95FF),
+                    heroTag: "SAVE",
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                    backgroundColor: Color(0xFF33CC66),
+                    onPressed: () {
+                      final data = SaveModel(
+                          noiseData: maxDB,
+                          date: date,
+                          time: time,
+                          area: selectedValue.toString());
+
+                      final box = Boxes.getData();
+
+                      // forcefully added typecast
+                      box.add(data);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SaveMain(
+                                maxDB, date, time, selectedValue.toString())),
+                      );
+                    },
                   ),
                 ),
+              ],
+            ),
+          ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 16.0, right: 16, top: 6, bottom: 6),
+                child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(40),
+                        color: Color(0xFFF6F7F8)),
+                    child: buildDropdownButtonFormField()),
               ),
+
+              Container(height: 320, child: dBMeter(maxDB)),
+
+              // depicts Mean dB
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Text(
+              //       meanDB != null
+              //           ? 'Average: ${meanDB!.toStringAsFixed(2)} dB'
+              //           : 'Awaiting data',
+              //       style:
+              //           const TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
+              //     ),
+              //   ],
+              // ),
+
+              // Chart according the noise meter
+              Expanded(child: DBChart(chartData: chartData)),
+
+              // space between chart and floatingActionButton
               const SizedBox(
-                width: 15,
-              ),
-              Expanded(
-                child: FloatingActionButton.extended(
-                  label: const Text(
-                    "SAVE",
-                    style: kButtonTextStyle,
-                  ),
-                  heroTag: "SAVE",
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                  backgroundColor: Color(0xFF33CC66),
-                  onPressed: () {
-                    final data = SaveModel(
-                        noiseData: maxDB,
-                        date: date,
-                        time: time,
-                        area: selectedValue.toString());
-
-                    final box = Boxes.getData();
-
-                    // forcefully added typecast
-                    box.add(data);
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => SaveMain(
-                              maxDB, date, time, selectedValue.toString())),
-                    );
-                  },
-                ),
+                height: 68,
               ),
             ],
           ),
-        ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 16.0, right: 16, top: 6, bottom: 6),
-              child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(40),
-                      color: Color(0xFFF6F7F8)),
-                  child: buildDropdownButtonFormField()),
-            ),
-
-            Container(height: 320, child: dBMeter(maxDB)),
-
-            // depicts Mean dB
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [
-            //     Text(
-            //       meanDB != null
-            //           ? 'Average: ${meanDB!.toStringAsFixed(2)} dB'
-            //           : 'Awaiting data',
-            //       style:
-            //           const TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
-            //     ),
-            //   ],
-            // ),
-
-            // Chart according the noise meter
-            Expanded(child: DBChart(chartData: chartData)),
-
-            // space between chart and floatingActionButton
-            const SizedBox(
-              height: 68,
-            ),
-          ],
-        ),
-        bottomNavigationBar: Container(
-          margin: EdgeInsets.all(5),
-          child: isLoaded
-              ? SizedBox(
-                  height: bannerAd.size.height.toDouble(),
-                  width: bannerAd.size.width.toDouble(),
-                  child: AdWidget(ad: bannerAd),
-                )
-              : SizedBox(
-                  height: bannerAd.size.height.toDouble(),
-                  width: bannerAd.size.width.toDouble(),
-                ),
+          bottomNavigationBar: Container(
+            margin: EdgeInsets.all(5),
+            child: isLoaded
+                ? SizedBox(
+                    height: bannerAd.size.height.toDouble(),
+                    width: bannerAd.size.width.toDouble(),
+                    child: AdWidget(ad: bannerAd),
+                  )
+                : SizedBox(
+                    height: bannerAd.size.height.toDouble(),
+                    width: bannerAd.size.width.toDouble(),
+                  ),
+          ),
         ),
       ),
     );

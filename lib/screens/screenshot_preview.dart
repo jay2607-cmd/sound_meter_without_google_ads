@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:photo_view/photo_view.dart';
@@ -99,7 +98,6 @@ class _ScreenshotPreviewState extends State<ScreenshotPreview> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     if (isInterstitaleLoaded) {
       interstitialAd.show();

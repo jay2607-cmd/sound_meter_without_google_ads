@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sound_meter/screens/recorder_listview.dart';
@@ -32,7 +33,7 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = "ca-app-pub-3940256099942544/6300978111";
+  var adUnit = dotenv.env['BANNER_AD_UNIT'] ?? "BANNER_AD_UNIT not found";
 
   initBannerAd() {
     bannerAd = BannerAd(
@@ -105,102 +106,113 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
   void dispose() {
     appDirectory.delete();
     super.dispose();
-    if (isInterstitaleLoaded) {
-      interstitialAd.show();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12.0),
+    return WillPopScope(
+      onWillPop: () async {
+        if (isInterstitaleLoaded) {
+          interstitialAd.show();
+          return false; // Prevent the default back navigation
+        } else {
+          return true; // Allow the default back navigation
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: IconButton(
+                  icon: Image.asset("assets/images/d1.png"),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Warning!',
+                              style: TextStyle(color: Colors.red)),
+                          content: const Text(
+                              'Do you really want to delete all files!'),
+                          actions: [
+                            TextButton(
+                              child: const Text('Cancel'),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            TextButton(
+                              child: Text('OK'),
+                              onPressed: () {
+                                deleteAllFilesInFolder();
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    setState(() {});
+                  }),
+            ),
+          ],
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
             child: IconButton(
-                icon: Image.asset("assets/images/d1.png"),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Warning!',
-                            style: TextStyle(color: Colors.red)),
-                        content: const Text(
-                            'Do you really want to delete all files!'),
-                        actions: [
-                          TextButton(
-                            child: const Text('Cancel'),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          TextButton(
-                            child: Text('OK'),
-                            onPressed: () {
-                              deleteAllFilesInFolder();
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                  setState(() {});
-                }),
-          ),
-        ],
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: IconButton(
-            icon: Image.asset(
-              'assets/images/back.png',
-              height: 28,
-              width: 28,
+              icon: Image.asset(
+                'assets/images/back.png',
+                height: 28,
+                width: 28,
+              ),
+              onPressed: () {
+                if (isInterstitaleLoaded) {
+                  interstitialAd.show();
+                } else {
+                  Navigator.pop(context);
+                }
+              },
             ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+          ),
+          title: const Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: Text(
+              "Voice Recorder",
+              style: kAppbarStyle,
+            ),
           ),
         ),
-        title: const Padding(
-          padding: EdgeInsets.only(left: 8.0),
-          child: Text(
-            "Voice Recorder",
-            style: kAppbarStyle,
-          ),
+        body: Column(
+          children: [
+            Expanded(
+              flex: 4,
+              child: RecordListView(
+                records: records,
+                appDirectory: appDirectory,
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: RecorderView(
+                onSaved: _onRecordComplete,
+              ),
+            ),
+          ],
         ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            flex: 4,
-            child: RecordListView(
-              records: records,
-              appDirectory: appDirectory,
-            ),
+        bottomNavigationBar: Container(
+          margin: EdgeInsets.all(5),
+          child: isLoaded
+              ? SizedBox(
+                  height: bannerAd.size.height.toDouble(),
+                  width: bannerAd.size.width.toDouble(),
+                  child: AdWidget(ad: bannerAd),
+                )
+              :  SizedBox(
+            height: bannerAd.size.height.toDouble(),
+            width: bannerAd.size.width.toDouble(),
           ),
-          Expanded(
-            flex: 1,
-            child: RecorderView(
-              onSaved: _onRecordComplete,
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        margin: EdgeInsets.all(5),
-        child: isLoaded
-            ? SizedBox(
-                height: bannerAd.size.height.toDouble(),
-                width: bannerAd.size.width.toDouble(),
-                child: AdWidget(ad: bannerAd),
-              )
-            :  SizedBox(
-          height: bannerAd.size.height.toDouble(),
-          width: bannerAd.size.width.toDouble(),
         ),
       ),
     );

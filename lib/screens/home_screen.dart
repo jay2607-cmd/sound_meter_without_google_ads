@@ -19,8 +19,8 @@ class SplashScreen extends StatefulWidget {
   SplashScreenState createState() => SplashScreenState();
 }
 
-class SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver {
-
+class SplashScreenState extends State<SplashScreen>
+    with WidgetsBindingObserver {
   late InterstitialAd interstitialAd;
   bool isInterstitaleLoaded = false;
 
@@ -34,25 +34,28 @@ class SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver 
       adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad) {
         interstitialAd = ad;
         isInterstitaleLoaded = true;
-        setState(() {
-        });
+        setState(() {});
         interstitialAd.fullScreenContentCallback =
             FullScreenContentCallback(onAdDismissedFullScreenContent: (ad) {
-              ad.dispose();
+          ad.dispose();
 
-              setState(() {
-                isInterstitaleLoaded = false;
-              });
+          setState(() {
+            isInterstitaleLoaded = false;
+          });
 
-              // do your task for close activity
-              Navigator.pop(context);
-            }, onAdFailedToShowFullScreenContent: (ad, error) {
-              ad.dispose();
+          // do your task for close activity
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      HomeScreen(cameras: cameras, logError: logError)));
+        }, onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
 
-              setState(() {
-                isInterstitaleLoaded = false;
-              });
-            });
+          setState(() {
+            isInterstitaleLoaded = false;
+          });
+        });
       }, onAdFailedToLoad: (error) {
         interstitialAd.dispose();
       }),
@@ -65,26 +68,17 @@ class SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver 
 
     initInterstitialAd();
 
-
-    Timer(
-        const Duration(milliseconds: 3500),
-        () => Navigator.pushReplacement(
+    Timer(const Duration(milliseconds: 3500), () {
+      if (isInterstitaleLoaded) {
+        interstitialAd.show();
+      } else {
+        Navigator.pushReplacement(
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    HomeScreen(cameras: cameras, logError: logError))));
-
-
-  }
-
-
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (isInterstitaleLoaded) {
-      interstitialAd.show();
-    }
+                    HomeScreen(cameras: cameras, logError: logError)));
+      }
+    });
   }
 
 /*  @override
@@ -154,7 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     loadNativeAd();
   }

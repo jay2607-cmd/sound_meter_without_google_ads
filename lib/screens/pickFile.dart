@@ -780,9 +780,6 @@ class _PickFileState extends State<PickFile> {
     stop();
 
     super.dispose();
-    if (isInterstitaleLoaded) {
-      interstitialAd.show();
-    }
   }
 
   // This funcion will helps you to pick and Image from Gallery
@@ -804,171 +801,185 @@ class _PickFileState extends State<PickFile> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: IconButton(
-              icon: Image.asset(
-                'assets/images/back.png',
-                height: 28,
-                width: 28,
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ),
-          title: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text(
-              "My Files",
-              style: kAppbarStyle,
-            ),
-          ),
-        ),
-        floatingActionButton: _image != null
-            ? FloatingActionButton(
+    return WillPopScope(
+      onWillPop: () async {
+        if (isInterstitaleLoaded) {
+          interstitialAd.show();
+          return false; // Prevent the default back navigation
+        } else {
+          return true; // Allow the default back navigation
+        }
+      },
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: IconButton(
+                icon: Image.asset(
+                  'assets/images/back.png',
+                  height: 28,
+                  width: 28,
+                ),
                 onPressed: () {
-                  setState(() {
-                    // if (_isPlaying) {
-                    //   _onPause();
-                    //   stop();
-                    // } else {
-                    //   _onPlay();
-                    //   start();
-                    // }
-                    if (controller.value.isPlaying) {
-                      controller.pause();
-                      stop();
-                    } else {
-                      controller.play();
-                      start();
-                    }
-                  });
+                  if (isInterstitaleLoaded) {
+                    interstitialAd.show();
+                  } else {
+                    Navigator.pop(context);
+                  }
                 },
-                child: Icon(controller.value.isPlaying
-                    ? Icons.pause
-                    : Icons.play_arrow))
-            : SizedBox.shrink(),
-        body: SingleChildScrollView(
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                // ElevatedButton(
-                //   onPressed: () {
-                //     _pickImageFromGallery();
-                //     // or
-                //     // _pickImageFromCamera();
-                //     // use the variables accordingly
-                //   },
-                //   child: Text("Pick Image From Gallery"),
-                // ),
-                Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      _pickImageFromGallery();
-                    },
-                    child: DottedBorder(
-                      borderType: BorderType.RRect,
-                      color: Color(0xffCED3D9),
-                      strokeWidth: 3.25,
-                      radius: const Radius.circular(10),
-                      strokeCap: StrokeCap.butt,
-                      dashPattern: const [12, 15],
+              ),
+            ),
+            title: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                "My Files",
+                style: kAppbarStyle,
+              ),
+            ),
+          ),
+          floatingActionButton: _image != null
+              ? FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      // if (_isPlaying) {
+                      //   _onPause();
+                      //   stop();
+                      // } else {
+                      //   _onPlay();
+                      //   start();
+                      // }
+                      if (controller.value.isPlaying) {
+                        controller.pause();
+                        stop();
+                      } else {
+                        controller.play();
+                        start();
+                      }
+                    });
+                  },
+                  child: Icon(controller.value.isPlaying
+                      ? Icons.pause
+                      : Icons.play_arrow))
+              : SizedBox.shrink(),
+          body: SingleChildScrollView(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     _pickImageFromGallery();
+                  //     // or
+                  //     // _pickImageFromCamera();
+                  //     // use the variables accordingly
+                  //   },
+                  //   child: Text("Pick Image From Gallery"),
+                  // ),
+                  Padding(
+                    padding: const EdgeInsets.all(14.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        _pickImageFromGallery();
+                      },
+                      child: DottedBorder(
+                        borderType: BorderType.RRect,
+                        color: Color(0xffCED3D9),
+                        strokeWidth: 3.25,
+                        radius: const Radius.circular(10),
+                        strokeCap: StrokeCap.butt,
+                        dashPattern: const [12, 15],
+                        child: Column(
+                          children: [
+                            Container(
+                              // height: 120,
+                              width: double.infinity,
+                              decoration: BoxDecoration(),
+                              child: Column(
+                                children: [
+                                  IconButton(
+                                    iconSize: 60,
+                                    onPressed: () {
+                                      _pickImageFromGallery();
+                                    },
+                                    icon:
+                                        Image.asset("assets/images/addvideo.png"),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Text(
+                                      "Select Video",
+                                      style: TextStyle(color: Color(0xff87898A)),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (_image != null)
+                    Center(
                       child: Column(
                         children: [
-                          Container(
-                            // height: 120,
-                            width: double.infinity,
-                            decoration: BoxDecoration(),
-                            child: Column(
-                              children: [
-                                IconButton(
-                                  iconSize: 60,
-                                  onPressed: () {
-                                    _pickImageFromGallery();
-                                  },
-                                  icon:
-                                      Image.asset("assets/images/addvideo.png"),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Text(
-                                    "Select Video",
-                                    style: TextStyle(color: Color(0xff87898A)),
-                                  ),
-                                )
-                              ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 6.0, horizontal: 16),
+                            child: Container(
+                              // height: 450,
+                              child: FutureBuilder(
+                                future: video,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    return AspectRatio(
+                                      aspectRatio: 4 / 5,
+                                      child: VideoPlayer(controller),
+                                    );
+                                  } else {
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                },
+                              ),
                             ),
                           ),
+                          _image != null
+                              ? Container(height: 350, child: dBMeter(maxDB))
+                              : SizedBox.shrink()
                         ],
                       ),
-                    ),
-                  ),
-                ),
-                if (_image != null)
-                  Center(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6.0, horizontal: 16),
-                          child: Container(
-                            // height: 450,
-                            child: FutureBuilder(
-                              future: video,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  return AspectRatio(
-                                    aspectRatio: 4 / 5,
-                                    child: VideoPlayer(controller),
-                                  );
-                                } else {
-                                  return Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-                              },
-                            ),
-                          ),
+                    )
+                  else
+                    Center(
+                      child: Container(
+                        margin: EdgeInsets.only(top: 20),
+                        child: Text(
+                          "Click on Select Video to select a Video",
+                          style: TextStyle(
+                              fontSize: 18.0, fontWeight: FontWeight.bold),
                         ),
-                        _image != null
-                            ? Container(height: 350, child: dBMeter(maxDB))
-                            : SizedBox.shrink()
-                      ],
-                    ),
-                  )
-                else
-                  Center(
-                    child: Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: Text(
-                        "Click on Select Video to select a Video",
-                        style: TextStyle(
-                            fontSize: 18.0, fontWeight: FontWeight.bold),
                       ),
                     ),
+                ]),
+          ),
+          bottomNavigationBar: Container(
+            margin: EdgeInsets.all(5),
+            child: isLoaded
+                ? SizedBox(
+                    height: bannerAd.size.height.toDouble(),
+                    width: bannerAd.size.width.toDouble(),
+                    child: AdWidget(ad: bannerAd),
+                  )
+                : SizedBox(
+                    height: bannerAd.size.height.toDouble(),
+                    width: bannerAd.size.width.toDouble(),
                   ),
-              ]),
-        ),
-        bottomNavigationBar: Container(
-          margin: EdgeInsets.all(5),
-          child: isLoaded
-              ? SizedBox(
-                  height: bannerAd.size.height.toDouble(),
-                  width: bannerAd.size.width.toDouble(),
-                  child: AdWidget(ad: bannerAd),
-                )
-              : SizedBox(
-                  height: bannerAd.size.height.toDouble(),
-                  width: bannerAd.size.width.toDouble(),
-                ),
+          ),
         ),
       ),
     );
