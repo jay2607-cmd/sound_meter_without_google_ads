@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sound_meter/screens/views/history_meter.dart';
 
 import '../boxes/boxes.dart';
 import '../database/save_model.dart';
+import '../google_ads.dart';
 import '../utils/constants.dart';
 
 class SaveMain extends StatefulWidget {
@@ -36,7 +36,7 @@ class SaveMainState extends State<SaveMain> {
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = dotenv.env['BANNER_AD_UNIT'] ?? "BANNER_AD_UNIT not found";
+  var adUnit = adBannerUnit;
 
   initBannerAd() {
     bannerAd = BannerAd(

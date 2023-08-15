@@ -15,6 +15,7 @@ import 'package:noise_meter/noise_meter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
+import '../google_ads.dart';
 import '../logic/dB_meter.dart';
 import '../utils/constants.dart';
 import 'live_screenshot.dart';
@@ -54,7 +55,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = "ca-app-pub-3940256099942544/6300978111";
+  var adUnit = adBannerUnit;
 
   initBannerAd() {
     bannerAd = BannerAd(
@@ -116,7 +117,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   double? meanDB;
 
   // interstitle app id
-  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
+  var adInterstitaleUnit = adIntUnit;
 
   late InterstitialAd interstitialAd;
   bool isInterstitaleLoaded = false;

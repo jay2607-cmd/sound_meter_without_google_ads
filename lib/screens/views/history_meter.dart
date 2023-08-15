@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import '../../google_ads.dart';
 import '../../logic/dB_meter.dart';
 import '../../utils/constants.dart';
 
@@ -25,7 +26,7 @@ class _HistoryMeterState extends State<HistoryMeter>
   bool isInterstitaleLoaded = false;
 
   // interstitle app id
-  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
+  var adInterstitaleUnit = adIntUnit;
 
   NativeAd? nativeAd;
   bool isNativeAdLoaded = false;
@@ -63,7 +64,7 @@ class _HistoryMeterState extends State<HistoryMeter>
 
   void loadNativeAd() {
     nativeAd = NativeAd(
-      adUnitId: "ca-app-pub-3940256099942544/2247696110",
+      adUnitId: adNativeUnit,
       factoryId: "listTileMedium",
       listener: NativeAdListener(onAdLoaded: (ad) {
         setState(() {

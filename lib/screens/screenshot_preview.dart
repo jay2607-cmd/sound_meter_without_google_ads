@@ -5,6 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../google_ads.dart';
 import '../utils/constants.dart';
 import 'live_screenshot.dart';
 
@@ -31,13 +32,13 @@ class _ScreenshotPreviewState extends State<ScreenshotPreview> {
   bool isInterstitaleLoaded = false;
 
   // interstitle app id
-  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
+  var adInterstitaleUnit = adIntUnit;
 
   late BannerAd bannerAd;
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = "ca-app-pub-3940256099942544/6300978111";
+  var adUnit = adBannerUnit;
 
   initBannerAd() {
     bannerAd = BannerAd(

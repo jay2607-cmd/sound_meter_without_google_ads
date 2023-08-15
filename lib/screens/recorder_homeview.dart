@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sound_meter/screens/recorder_listview.dart';
 import 'package:sound_meter/screens/recorder_view.dart';
 
+import '../google_ads.dart';
 import '../utils/constants.dart';
 
 class RecorderHomeView extends StatefulWidget {
@@ -27,13 +27,13 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
   bool isInterstitaleLoaded = false;
 
   // interstitle app id
-  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
+  var adInterstitaleUnit = adIntUnit;
 
   late BannerAd bannerAd;
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = dotenv.env['BANNER_AD_UNIT'] ?? "BANNER_AD_UNIT not found";
+  var adUnit = adBannerUnit;
 
   initBannerAd() {
     bannerAd = BannerAd(

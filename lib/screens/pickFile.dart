@@ -638,6 +638,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:noise_meter/noise_meter.dart';
 import 'package:video_player/video_player.dart';
 
+import '../google_ads.dart';
 import '../logic/dB_meter.dart';
 import '../utils/constants.dart';
 
@@ -653,7 +654,7 @@ class _PickFileState extends State<PickFile> {
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = "ca-app-pub-3940256099942544/6300978111";
+  var adUnit = adBannerUnit;
 
   initBannerAd() {
     bannerAd = BannerAd(
@@ -733,7 +734,7 @@ class _PickFileState extends State<PickFile> {
   bool isInterstitaleLoaded = false;
 
   // interstitle app id
-  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
+  var adInterstitaleUnit = adIntUnit;
 
   initInterstitialAd() {
     InterstitialAd.load(

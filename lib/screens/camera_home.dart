@@ -5,6 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:sound_meter/screens/pickFile.dart';
 import 'package:sound_meter/screens/views/reusable_grid_view.dart';
 
+import '../google_ads.dart';
 import '../utils/constants.dart';
 import 'capture_video_and_measure_noise.dart';
 
@@ -31,7 +32,7 @@ class _CameraHomeState extends State<CameraHome> {
 
   void loadNativeAd() {
     nativeAd = NativeAd(
-      adUnitId: "ca-app-pub-3940256099942544/2247696110",
+      adUnitId: adNativeUnit,
       factoryId: "listTileMedium",
       listener: NativeAdListener(onAdLoaded: (ad) {
         setState(() {

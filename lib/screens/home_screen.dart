@@ -3,11 +3,14 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:sound_meter/screens/info.dart';
 
 import 'package:sound_meter/screens/recorder_homeview.dart';
 import 'package:sound_meter/screens/save_main.dart';
 import 'package:sound_meter/screens/views/reusable_grid_view.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../google_ads.dart';
 import '../main.dart';
 import 'camera_home.dart';
 import 'noise_detector.dart';
@@ -25,7 +28,7 @@ class SplashScreenState extends State<SplashScreen>
   bool isInterstitaleLoaded = false;
 
   // interstitle app id
-  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
+  var adInterstitaleUnit = adIntUnit;
 
   initInterstitialAd() {
     InterstitialAd.load(
@@ -146,15 +149,19 @@ class _HomeScreenState extends State<HomeScreen> {
   NativeAd? nativeAd;
   bool isNativeAdLoaded = false;
 
+  NativeAd? nativePopUpAd;
+  bool isNativePopUpAdLoaded = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     loadNativeAd();
+    loadNativePopUpAd();
   }
 
   void loadNativeAd() {
     nativeAd = NativeAd(
-      adUnitId: "ca-app-pub-3940256099942544/2247696110",
+      adUnitId: adNativeUnit,
       factoryId: "listTileMedium",
       listener: NativeAdListener(onAdLoaded: (ad) {
         setState(() {
@@ -168,139 +175,235 @@ class _HomeScreenState extends State<HomeScreen> {
     nativeAd!.load();
   }
 
+  void loadNativePopUpAd() {
+    nativePopUpAd = NativeAd(
+      adUnitId: adNativeUnit,
+      factoryId: "listTileMedium",
+      listener: NativeAdListener(onAdLoaded: (ad) {
+        setState(() {
+          isNativePopUpAdLoaded = true;
+        });
+      }, onAdFailedToLoad: (ad, error) {
+        nativePopUpAd!.dispose();
+      }),
+      request: const AdRequest(),
+    );
+    nativePopUpAd!.load();
+  }
+
+  var toLaunch;
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Color(0xffF0F1F2),
-                    image: DecorationImage(
-                        image: AssetImage("assets/images/bg.png"),
-                        fit: BoxFit.cover)),
-                child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, right: 8, top: 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        // crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            "assets/images/firstpage_icon.png",
-                            height: 80,
-                            width: 80,
-                            fit: BoxFit.contain,
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Image.asset(
-                                "assets/images/appname.png",
-                                height: 80,
-                                width: 150,
-                                fit: BoxFit.contain,
-                              ),
-                            ],
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(top: 13, bottom: 8),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              color: Colors.white,
+    toLaunch = Uri.parse(
+        'https://play.google.com/store/apps/details?id=com.expressway.noisedetector.sm&pli=1');
+
+    return WillPopScope(
+      onWillPop: () {
+        return showExitPopup();
+      },
+      child: SafeArea(
+        child: Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Color(0xffF0F1F2),
+                      image: DecorationImage(
+                          image: AssetImage("assets/images/bg.png"),
+                          fit: BoxFit.cover)),
+                  child: Column(
+                    // mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(left: 8, right: 8, top: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          // crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              "assets/images/firstpage_icon.png",
+                              height: 80,
+                              width: 80,
+                              fit: BoxFit.contain,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Column(
-                                children: [
-                                  Image.asset("assets/images/info.png",
-                                      height: 35,
-                                      width: 30,
-                                      fit: BoxFit.contain),
-                                  SizedBox(
-                                    height: 7,
-                                  ),
-                                  Image.asset("assets/images/ads.png",
-                                      height: 35,
-                                      width: 30,
-                                      fit: BoxFit.contain),
-                                ],
-                              ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Image.asset(
+                                  "assets/images/appname.png",
+                                  height: 80,
+                                  width: 150,
+                                  fit: BoxFit.contain,
+                                ),
+                              ],
                             ),
-                          )
+                            Container(
+                              margin: EdgeInsets.only(top: 13, bottom: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.white,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Column(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+Navigator.push(context, MaterialPageRoute(builder: (context) => Info()));
+                                      },
+                                      child: Image.asset("assets/images/info.png",
+                                          height: 35,
+                                          width: 30,
+                                          fit: BoxFit.contain),
+                                    ),
+                                    SizedBox(
+                                      height: 7,
+                                    ),
+                                    Image.asset("assets/images/ads.png",
+                                        height: 35,
+                                        width: 30,
+                                        fit: BoxFit.contain),
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Divider(
+                        color: Color(0xFFDCDFE3),
+                        thickness: 2,
+                        indent: Checkbox.width,
+                        endIndent: Checkbox.width,
+                      ),
+                      GridView.count(
+                        childAspectRatio: 4 / 3,
+                        shrinkWrap: true,
+                        primary: false,
+                        padding: const EdgeInsets.only(
+                            left: 18, top: 7.5, bottom: 15, right: 18),
+                        crossAxisSpacing: 18,
+                        mainAxisSpacing: 16,
+                        crossAxisCount: 2,
+                        children: <Widget>[
+                          ReusableGridView(
+                            className: NoiseDetector(),
+                            label1: "Noise",
+                            label2: "Detector",
+                            imgPath: "assets/images/b1.png",
+                          ),
+                          ReusableGridView(
+                            className: SaveMain.history(),
+                            label1: "Noise",
+                            label2: "History",
+                            imgPath: "assets/images/b2.png",
+                          ),
+                          ReusableGridView(
+                            className: RecorderHomeView(
+                              title: 'Recorder',
+                            ),
+                            label1: "Voice",
+                            label2: "Recorder",
+                            imgPath: "assets/images/b3.png",
+                          ),
+                          ReusableGridView(
+                            className: CameraHome(
+                                cameras: widget.cameras,
+                                logError: widget.logError),
+                            label1: "Noise",
+                            label2: "From My Files",
+                            imgPath: "assets/images/b4.png",
+                          ),
                         ],
                       ),
-                    ),
-                    Divider(
-                      color: Color(0xFFDCDFE3),
-                      thickness: 2,
-                      indent: Checkbox.width,
-                      endIndent: Checkbox.width,
-                    ),
-                    GridView.count(
-                      childAspectRatio: 4 / 3,
-                      shrinkWrap: true,
-                      primary: false,
-                      padding: const EdgeInsets.only(
-                          left: 18, top: 7.5, bottom: 15, right: 18),
-                      crossAxisSpacing: 18,
-                      mainAxisSpacing: 16,
-                      crossAxisCount: 2,
-                      children: <Widget>[
-                        ReusableGridView(
-                          className: NoiseDetector(),
-                          label1: "Noise",
-                          label2: "Detector",
-                          imgPath: "assets/images/b1.png",
-                        ),
-                        ReusableGridView(
-                          className: SaveMain.history(),
-                          label1: "Noise",
-                          label2: "History",
-                          imgPath: "assets/images/b2.png",
-                        ),
-                        ReusableGridView(
-                          className: RecorderHomeView(
-                            title: 'Recorder',
-                          ),
-                          label1: "Voice",
-                          label2: "Recorder",
-                          imgPath: "assets/images/b3.png",
-                        ),
-                        ReusableGridView(
-                          className: CameraHome(
-                              cameras: widget.cameras,
-                              logError: widget.logError),
-                          label1: "Noise",
-                          label2: "From My Files",
-                          imgPath: "assets/images/b4.png",
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: isNativeAdLoaded
+              ? Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                  ),
+                  height: 265,
+                  child: AdWidget(
+                    ad: nativeAd!,
+                  ),
+                )
+              : SizedBox(),
+        ),
+      ),
+    );
+  }
+
+  Future<void>? _launched;
+  Future<void> _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  Future<bool> showExitPopup() async {
+    return await showDialog(
+          //show confirm dialogue
+          //the return value will be from "Yes" or "No" options
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Exit App'),
+            content: Text('Do you want to exit an App?'),
+            actions: [
+              Column(
+                children: [
+                  isNativePopUpAdLoaded
+                      ? Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                          ),
+                          height: 265,
+                          width: 300,
+                          child: AdWidget(
+                            ad: nativePopUpAd!,
+                          ),
+                        )
+                      : SizedBox(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () => setState(() {
+                          _launched = _launchInBrowser(toLaunch);
+                        }),
+
+                        //return false when click on "NO"
+                        child: Text('Rate US'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        //return false when click on "NO"
+                        child: Text('No'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        //return true when click on "Yes"
+                        child: Text('Yes'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
-        ),
-        bottomNavigationBar: isNativeAdLoaded
-            ? Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                ),
-                height: 265,
-                child: AdWidget(
-                  ad: nativeAd!,
-                ),
-              )
-            : SizedBox(),
-      ),
-    );
+        ) ??
+        Future.value(
+            false); //if showDialouge had returned null, then return false
   }
 }

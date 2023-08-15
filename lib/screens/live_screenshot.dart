@@ -6,6 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sound_meter/screens/screenshot_preview.dart';
 
+import '../google_ads.dart';
 import '../utils/constants.dart';
 
 class ImageListScreen extends StatefulWidget {
@@ -27,7 +28,7 @@ class _ImageListScreenState extends State<ImageListScreen>
 
   void loadNativeAd() {
     nativeAd = NativeAd(
-      adUnitId: "ca-app-pub-3940256099942544/2247696110",
+      adUnitId: adNativeUnit,
       factoryId: "listTileMedium",
       listener: NativeAdListener(onAdLoaded: (ad) {
         setState(() {

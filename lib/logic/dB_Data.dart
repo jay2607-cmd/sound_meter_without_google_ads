@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:noise_meter/noise_meter.dart';
@@ -54,7 +53,7 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
   bool isInterstitaleLoaded = false;
 
   // interstitle app id
-  var adInterstitaleUnit = "ca-app-pub-3940256099942544/1033173712";
+  var adInterstitaleUnit = adIntUnit;
 
   initInterstitialAd() {
     InterstitialAd.load(
@@ -106,7 +105,7 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = dotenv.env['BANNER_AD_UNIT'] ?? "BANNER_AD_UNIT not found";
+  var adUnit = adBannerUnit;
 
   @override
   void initState() {
