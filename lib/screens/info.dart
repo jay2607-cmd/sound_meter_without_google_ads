@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../app_purchase.dart';
 import 'license_credit.dart';
 
 class Info extends StatefulWidget {
@@ -37,13 +38,26 @@ class _InfoState extends State<Info> {
               title: Text("Version Name"),
               subtitle: Text("1.0"),
             ),
-            ListTile(
-              title: Text(
-                "Buy AdFree Version",
-              ),
-              trailing: IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.arrow_forward_ios_sharp),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SoundMeterAppPurchase()));
+              },
+              child: ListTile(
+                title: Text(
+                  "Buy AdFree Version",
+                ),
+                trailing: IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SoundMeterAppPurchase()));
+                  },
+                  icon: Icon(Icons.arrow_forward_ios_sharp),
+                ),
               ),
             ),
             ListTile(
@@ -87,24 +101,33 @@ class _InfoState extends State<Info> {
                 ),
               ),
             ),
-            ListTile(
-              title: Text(
-                "Private Policy",
-              ),
-              trailing: IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.arrow_forward_ios_sharp),
+            GestureDetector(
+              onTap: () {},
+              child: ListTile(
+                title: Text(
+                  "Private Policy",
+                ),
+                trailing: IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.arrow_forward_ios_sharp),
+                ),
               ),
             ),
             GestureDetector(
               onTap: () {
-Navigator.push(context, MaterialPageRoute(builder: (context) => LicenseAndCredit()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => LicenseAndCredit()));
               },
               child: ListTile(
                 title: Text("License and Credit"),
                 trailing: IconButton(
                   onPressed: () {
-
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LicenseAndCredit()));
                   },
                   icon: Icon(Icons.arrow_forward_ios_sharp),
                 ),
