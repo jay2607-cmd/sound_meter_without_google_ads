@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:sound_meter/screens/user_consent.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../app_purchase.dart';
@@ -60,13 +61,19 @@ class _InfoState extends State<Info> {
                 ),
               ),
             ),
-            ListTile(
-              title: Text(
-                "User Consent",
-              ),
-              trailing: IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.arrow_forward_ios_sharp),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => UserConsent()));
+              },
+              child: ListTile(
+                title: Text(
+                  "User Consent",
+                ),
+                trailing: IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.arrow_forward_ios_sharp),
+                ),
               ),
             ),
             GestureDetector(

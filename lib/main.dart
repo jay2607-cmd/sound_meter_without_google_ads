@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sound_meter/screens/home_screen.dart';
 
 import 'database/save_model.dart';
@@ -37,6 +38,11 @@ Future<void> main() async {
   MobileAds.instance.initialize();
 
 
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  if(preferences.getBool("isPersonalised") == null) {
+    preferences.setBool("isPersonalised", false);
+  }
+
   try {
     cameras = await availableCameras();
   } on CameraException catch (e) {
@@ -49,6 +55,7 @@ Future<void> main() async {
   Hive.registerAdapter(SaveModelAdapter());
 
   await Hive.openBox<SaveModel>("savedB");
+
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitDown,
@@ -95,7 +102,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     WidgetsBinding.instance.removeObserver(this);
   }
@@ -133,7 +139,7 @@ class AppOpenAdManager {
           isLoaded = true;
         },
         onAdFailedToLoad: (error) {
-          // Handle the error.
+          print(error);
         },
       ),
     );

@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sound_meter/screens/info.dart';
 
 import 'package:sound_meter/screens/recorder_homeview.dart';
@@ -26,6 +28,22 @@ class SplashScreenState extends State<SplashScreen>
     with WidgetsBindingObserver {
   late InterstitialAd interstitialAd;
   bool isInterstitaleLoaded = false;
+
+  var privacyPolicy = Uri.parse(
+      'https://www.google.com/');
+
+  var dataUsage = Uri.parse(
+      'https://www.google.com/');
+
+  Future<void>? _launched;
+  Future<void> _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
 
   // interstitle app id
   var adInterstitaleUnit = adIntUnit;
@@ -65,23 +83,125 @@ class SplashScreenState extends State<SplashScreen>
     );
   }
 
+  late SharedPreferences preferences;
+  loadIsPersonalised() async {
+    preferences = await SharedPreferences.getInstance();
+  }
+
   @override
   void initState() {
     super.initState();
-
     initInterstitialAd();
+    loadIsPersonalised();
 
-    Timer(const Duration(milliseconds: 3500), () {
+    Timer(const Duration(milliseconds: 2500), () {
+      // show pop up
+
       if (isInterstitaleLoaded) {
-        interstitialAd.show();
+        if (preferences.getBool("isPersonalised") == true) {
+          interstitialAd.show();
+        } else {
+          showExitPopup();
+        }
       } else {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    HomeScreen(cameras: cameras, logError: logError)));
+        if (preferences.getBool("isPersonalised") == true) {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      HomeScreen(cameras: cameras, logError: logError)));
+        } else {
+          // show pop
+          showExitPopup();
+        }
       }
     });
+  }
+
+  Future<bool> showExitPopup() async {
+    return await showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => AlertDialog(
+            insetPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            title: Row(
+              children: [
+                Image.asset(
+                  "assets/images/appicon (1).png",
+                  height: 40,
+                  width: 40,
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Text('Sound Meter'),
+              ],
+            ),
+            content: Text(
+              'We care about your privacy & data security. We keep this app free by showing ads.\n\nWith your permission at launch time we are showing tailor ads to you.\n\nIf you want to change setting of your consent, please click below \'Deactivate\' button.',
+            ),
+            actions: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      interstitialAd.show();
+                      preferences.setBool("isPersonalised", true);
+                      print("preferences.getBool('isPersonalised')");
+                      print(preferences.getBool("isPersonalised"));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Color(0xff724BE5), // Set background color
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Add border radius
+                      ),
+                    ),
+                    child: Text('Yes, Continue'),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  ElevatedButton(
+                    onPressed: () => SystemNavigator.pop(),
+                    style: ElevatedButton.styleFrom(
+                      primary: Color(0xff724BE5),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 16), // Add vertical padding
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Add border radius
+                      ),
+                    ),
+                    child: Text('Exit'),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _launched = _launchInBrowser(privacyPolicy);
+                        });
+                      },
+                      child: Text("Privacy & Policy")),
+
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _launched = _launchInBrowser(dataUsage);
+                        });
+                      },
+                      child: Text("How App & Our Partners uses your data!")),
+                ],
+              ),
+            ],
+          ),
+        ) ??
+        Future.value(false);
   }
 
 /*  @override
@@ -106,30 +226,35 @@ class SplashScreenState extends State<SplashScreen>
   }*/
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image(
-              image: AssetImage(
-                "assets/images/splash_icon.png",
+    return WillPopScope(
+      onWillPop: () {
+        return Future.value(false);
+      },
+      child: const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image(
+                image: AssetImage(
+                  "assets/images/splash_icon.png",
+                ),
+                height: 155,
+                width: 155,
               ),
-              height: 155,
-              width: 155,
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Text(
-              "Noise",
-              style: TextStyle(fontSize: 35),
-            ),
-            Text(
-              "Detector",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
-            ),
-          ],
+              SizedBox(
+                height: 30,
+              ),
+              Text(
+                "Noise",
+                style: TextStyle(fontSize: 35),
+              ),
+              Text(
+                "Detector",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -253,9 +378,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   children: [
                                     GestureDetector(
                                       onTap: () {
-Navigator.push(context, MaterialPageRoute(builder: (context) => Info()));
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => Info()));
                                       },
-                                      child: Image.asset("assets/images/info.png",
+                                      child: Image.asset(
+                                          "assets/images/info.png",
                                           height: 35,
                                           width: 30,
                                           fit: BoxFit.contain),
