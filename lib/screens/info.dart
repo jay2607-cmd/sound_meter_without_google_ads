@@ -71,7 +71,10 @@ class _InfoState extends State<Info> {
                   "User Consent",
                 ),
                 trailing: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => UserConsent()));
+                  },
                   icon: Icon(Icons.arrow_forward_ios_sharp),
                 ),
               ),
