@@ -1416,10 +1416,10 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   void _captureScreenshot() async {
     RenderRepaintBoundary boundary =
         _key.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    if (boundary.debugNeedsPaint) {
-      Timer(Duration(seconds: 2), () => _captureScreenshot());
-      return null;
-    }
+    // if (boundary.debugNeedsPaint) {
+    //   // Timer(Duration(seconds: 2), () => _captureScreenshot());
+    //   return null;
+    // }
     ui.Image image = await boundary.toImage();
 
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
