@@ -115,7 +115,7 @@ class _InfoState extends State<Info> {
               onTap: () {},
               child: ListTile(
                 title: Text(
-                  "Private Policy",
+                  "Privacy & Policy",
                 ),
                 trailing: IconButton(
                   onPressed: () {},
