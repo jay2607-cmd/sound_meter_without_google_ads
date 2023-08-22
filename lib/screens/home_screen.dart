@@ -521,7 +521,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text('No'),
                       ),
                       ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(true),
+                        onPressed: () => SystemNavigator.pop(),
                         //return true when click on "Yes"
                         child: Text('Yes'),
                       ),
