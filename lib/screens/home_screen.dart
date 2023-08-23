@@ -29,11 +29,9 @@ class SplashScreenState extends State<SplashScreen>
   late InterstitialAd interstitialAd;
   bool isInterstitaleLoaded = false;
 
-  var privacyPolicy = Uri.parse(
-      'https://www.google.com/');
+  var privacyPolicy = Uri.parse('https://www.google.com/');
 
-  var dataUsage = Uri.parse(
-      'https://www.google.com/');
+  var dataUsage = Uri.parse('https://www.google.com/');
 
   Future<void>? _launched;
   Future<void> _launchInBrowser(Uri url) async {
@@ -147,7 +145,15 @@ class SplashScreenState extends State<SplashScreen>
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      interstitialAd.show();
+                      if(isInterstitaleLoaded) {
+                        interstitialAd.show();
+                      } else{
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    HomeScreen(cameras: cameras, logError: logError)));
+                      }
                       preferences.setBool("isPersonalised", true);
                       print("preferences.getBool('isPersonalised')");
                       print(preferences.getBool("isPersonalised"));
@@ -188,7 +194,6 @@ class SplashScreenState extends State<SplashScreen>
                         });
                       },
                       child: Text("Privacy & Policy")),
-
                   TextButton(
                       onPressed: () {
                         setState(() {
@@ -329,7 +334,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: SafeArea(
         child: Scaffold(
           body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.height * 0.02,
+                vertical: MediaQuery.of(context).size.height * 0.02),
             child: Column(
               children: [
                 Container(
@@ -346,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding:
                             const EdgeInsets.only(left: 8, right: 8, top: 4),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           // crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Image.asset(

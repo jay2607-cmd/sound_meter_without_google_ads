@@ -324,7 +324,7 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
                     child: buildDropdownButtonFormField()),
               ),
 
-              Container(height: 320, child: dBMeter(maxDB)),
+              Container(height: MediaQuery.of(context).size.height * 0.385, child: dBMeter(maxDB)),
 
               // depicts Mean dB
               // Row(

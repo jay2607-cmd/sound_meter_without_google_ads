@@ -66,13 +66,13 @@ class _RecorderViewState extends State<RecorderView> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Stack(
-        alignment: Alignment.center,
+
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _recordText == "Recording..."
-                  ? Image.asset("assets/images/waves_gif1.gif", width: 125,height: 125,)
+                  ? Expanded(child: Image.asset("assets/images/waves_gif1.gif"))
                   : SizedBox.shrink(),
               TextButton(
                 onPressed: () async {
@@ -81,21 +81,11 @@ class _RecorderViewState extends State<RecorderView> {
                 },
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all(CircleBorder()),
-                  // padding: MaterialStateProperty.all(const EdgeInsets.all(20)),
-                  // backgroundColor:
-                  // MaterialStateProperty.all(Colors.blue), // <-- Button color
-                  // overlayColor:
-                  // MaterialStateProperty.resolveWith<Color?>((states) {
-                  //   if (states.contains(MaterialState.pressed)) {
-                  //     return Colors.red; // <-- Splash color
-                  //   }
-                  //   return null;
-                  // }),
                 ),
                 child: _recordIcon,
               ),
               _recordText == "Recording..."
-                  ? Image.asset("assets/images/waves_gif1.gif", width: 125,)
+                  ? Expanded(child: Image.asset("assets/images/waves_gif1.gif"))
                   : SizedBox.shrink(),
             ],
           ),

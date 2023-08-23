@@ -109,13 +109,23 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      builder: (context,child) {
+        final MediaQueryData data = MediaQuery.of(context);
+        return MediaQuery(
+          data: data.copyWith(textScaleFactor: 1.0), child: child!,
+        );
+      },
         debugShowCheckedModeBanner: false,
         title: "Sound Meter",
         theme: ThemeData(
           // Set the default text style to Montserrat
-          textTheme: GoogleFonts.montserratTextTheme(
-            Theme.of(context).textTheme,
+          fontFamily: "Montserrat",
+          textTheme: TextTheme(
+            //
+            // bodyLarge: TextStyle(fontSize: 16),
+            // bodyMedium: TextStyle(fontSize: 16),
           ),
+
         ),
         home: const SplashScreen());
   }

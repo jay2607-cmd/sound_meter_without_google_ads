@@ -54,7 +54,7 @@ class ReusableGridView extends StatelessWidget {
             ),
             SizedBox.shrink(),
             Padding(
-              padding: const EdgeInsets.only(top: 50.0),
+              padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

@@ -118,50 +118,52 @@ class _HistoryMeterState extends State<HistoryMeter>
             ),
           ),
         ),
-        body: Column(
-          children: [
-            Container(height: 330, child: dBMeter(widget.maxDB)),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "Noise Detected :",
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        " ${widget.maxDB.toStringAsFixed(2)} dB",
-                        style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF1C95FF)),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 4,
-                  ),
-                  Text("Area : ${widget.area}",
-                      style: const TextStyle(fontSize: 13)),
-                  SizedBox(
-                    height: 4,
-                  ),
-                  Text("Date : ${widget.date}",
-                      style: const TextStyle(fontSize: 13)),
-                  SizedBox(
-                    height: 4,
-                  ),
-                  Text("Time : ${widget.time}",
-                      style: const TextStyle(fontSize: 13)),
-                ],
-              ),
-            )
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(height: 330, child: dBMeter(widget.maxDB)),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          "Noise Detected :",
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          " ${widget.maxDB.toStringAsFixed(2)} dB",
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF1C95FF)),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Text("Area : ${widget.area}",
+                        style: const TextStyle(fontSize: 13)),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Text("Date : ${widget.date}",
+                        style: const TextStyle(fontSize: 13)),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Text("Time : ${widget.time}",
+                        style: const TextStyle(fontSize: 13)),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
         bottomNavigationBar: isNativeAdLoaded
             ? Container(
