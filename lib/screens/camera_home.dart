@@ -6,6 +6,7 @@ import 'package:sound_meter/screens/pickFile.dart';
 import 'package:sound_meter/screens/views/reusable_grid_view.dart';
 
 import '../google_ads.dart';
+import '../provider/db_provider.dart';
 import '../utils/constants.dart';
 import 'capture_video_and_measure_noise.dart';
 
@@ -23,16 +24,30 @@ class _CameraHomeState extends State<CameraHome> {
   NativeAd? nativeAd;
   bool isNativeAdLoaded = false;
 
+  bool isShowAds = true;
+String adUnit = "";
+
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    loadNativeAd();
+    DbProvider().getShowAdsState().then((value) {
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if (isShowAds == true) {
+        adUnit = adNativeUnit;
+        loadNativeAd();
+      } else {
+        adUnit = "";
+        loadNativeAd();
+      }
+    });
   }
 
   void loadNativeAd() {
     nativeAd = NativeAd(
-      adUnitId: adNativeUnit,
+      adUnitId: adUnit,
       factoryId: "listTileMedium",
       listener: NativeAdListener(onAdLoaded: (ad) {
         setState(() {

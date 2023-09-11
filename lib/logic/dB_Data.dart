@@ -10,6 +10,8 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import '../boxes/boxes.dart';
 import '../database/save_model.dart';
 import '../google_ads.dart';
+import '../main.dart';
+import '../provider/db_provider.dart';
 import '../screens/save_main.dart';
 import '../utils/constants.dart';
 import 'dB_Chart.dart';
@@ -101,27 +103,49 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
   ChartSeriesController? _chartSeriesController;
   late int previousMillis;
 
-  late BannerAd bannerAd;
+  BannerAd? bannerAd;
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = adBannerUnit;
+var adUnit;
+  bool isShowAds = true;
 
   @override
   void initState() {
     print(adUnit);
     super.initState();
+    DbProvider().getShowAdsState().then((value) {
+
+        isShowAds = value;
+        print("isShowAds sfdfg $isShowAds");
+
+        if(isShowAds == true) {
+          adUnit = adBannerUnit;
+          initInterstitialAd();
+          initBannerAd();
+        } else{
+          adUnit = "";
+          adInterstitaleUnit = "";
+          initInterstitialAd();
+          initBannerAd();
+        }
+
+    });
     noiseMeter = NoiseMeter(onError);
     start();
     WidgetsBinding.instance.addObserver(this);
-    initBannerAd();
-    initInterstitialAd();
+
+    print("sfdfg $isShowAds");
+
+
+
   }
 
   initBannerAd() {
+    print("lkgdhvilhnsdvfgs $isShowAds");
     bannerAd = BannerAd(
       size: AdSize.banner,
-      adUnitId: adUnit,
+      adUnitId: isShowAds ? adUnit : "",
       listener: BannerAdListener(onAdLoaded: (ad) {
         setState(() {
           isLoaded = true;
@@ -133,7 +157,7 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
       request: AdRequest(),
     );
 
-    bannerAd.load();
+    bannerAd!.load();
   }
 
   @override
@@ -353,13 +377,12 @@ class NoiseAppState extends State<NoiseApp> with WidgetsBindingObserver {
             margin: EdgeInsets.all(5),
             child: isLoaded
                 ? SizedBox(
-                    height: bannerAd.size.height.toDouble(),
-                    width: bannerAd.size.width.toDouble(),
-                    child: AdWidget(ad: bannerAd),
+                    height: 50,
+                    child: AdWidget(ad: bannerAd!),
                   )
                 : SizedBox(
-                    height: bannerAd.size.height.toDouble(),
-                    width: bannerAd.size.width.toDouble(),
+                    height: 50,
+                    // width: 320,
                   ),
           ),
         ),

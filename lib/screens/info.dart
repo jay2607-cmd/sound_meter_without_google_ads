@@ -41,28 +41,6 @@ class _InfoState extends State<Info> {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => SoundMeterAppPurchase()));
-              },
-              child: ListTile(
-                title: Text(
-                  "Buy AdFree Version",
-                ),
-                trailing: IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => SoundMeterAppPurchase()));
-                  },
-                  icon: Icon(Icons.arrow_forward_ios_sharp),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => UserConsent()));
               },

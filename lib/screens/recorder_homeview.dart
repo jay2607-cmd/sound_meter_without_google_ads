@@ -6,6 +6,7 @@ import 'package:sound_meter/screens/recorder_listview.dart';
 import 'package:sound_meter/screens/recorder_view.dart';
 
 import '../google_ads.dart';
+import '../provider/db_provider.dart';
 import '../utils/constants.dart';
 
 class RecorderHomeView extends StatefulWidget {
@@ -33,7 +34,7 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = adBannerUnit;
+  var adUnit = "";
 
   initBannerAd() {
     bannerAd = BannerAd(
@@ -52,12 +53,29 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
 
     bannerAd.load();
   }
+  bool isShowAds = true;
+
+
 
   @override
   void initState() {
     super.initState();
-    initBannerAd();
-    initInterstitialAd();
+
+    DbProvider().getShowAdsState().then((value) {
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if (isShowAds == true) {
+        adUnit = adNativeUnit;
+        initInterstitialAd();
+        initBannerAd();
+      } else {
+        adUnit = "";
+        initInterstitialAd();
+        initBannerAd();
+      }
+    });
+
     getApplicationDocumentsDirectory().then((value) {
       appDirectory = value;
       appDirectory.list().listen((onData) {
@@ -72,7 +90,7 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
 
   initInterstitialAd() {
     InterstitialAd.load(
-      adUnitId: adInterstitaleUnit,
+      adUnitId: adUnit,
       request: AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad) {
         interstitialAd = ad;
@@ -205,13 +223,13 @@ class _RecorderHomeViewState extends State<RecorderHomeView> {
           margin: EdgeInsets.all(5),
           child: isLoaded
               ? SizedBox(
-                  height: bannerAd.size.height.toDouble(),
-                  width: bannerAd.size.width.toDouble(),
+                  height:50,
+                  //width: bannerAd.size.width.toDouble(),
                   child: AdWidget(ad: bannerAd),
                 )
               :  SizedBox(
-            height: bannerAd.size.height.toDouble(),
-            width: bannerAd.size.width.toDouble(),
+            height:50,
+            //width: bannerAd.size.width.toDouble(),
           ),
         ),
       ),

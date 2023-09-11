@@ -5,8 +5,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive/hive.dart';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sound_meter/provider/db_provider.dart';
 import 'package:sound_meter/screens/home_screen.dart';
 
 import 'database/save_model.dart';
@@ -36,7 +36,6 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
-
 
   SharedPreferences preferences = await SharedPreferences.getInstance();
   if(preferences.getBool("isPersonalised") == null) {
@@ -71,12 +70,13 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  State<StatefulWidget> createState() => _MyAppState();
+  State<StatefulWidget> createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   AppOpenAdManager appOpenAdManager = AppOpenAdManager();
   bool isPaused = false;
+  bool isShowAds = true;
 
   @override
   void initState() {
@@ -84,6 +84,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.initState();
     appOpenAdManager.loadAd();
     WidgetsBinding.instance.addObserver(this);
+
+    DbProvider().getShowAdsState().then((value) {
+      setState(() {
+        isShowAds = value;
+      });
+    });
   }
 
   @override
@@ -93,7 +99,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused) {
       isPaused = true;
     }
-    if (state == AppLifecycleState.resumed && isPaused) {
+    DbProvider().getShowAdsState().then((value) {
+      setState(() {
+        isShowAds = value;
+      });
+    });
+    if (state == AppLifecycleState.resumed && isPaused && isShowAds == true) {
       print("Resumed==========================");
       appOpenAdManager.showAdIfAvailable();
       isPaused = false;
@@ -131,15 +142,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 }
 
+bool isShowOpenAds = true;
+
 class AppOpenAdManager {
   AppOpenAd? _appOpenAd;
   bool _isShowingAd = false;
   static bool isLoaded = false;
 
+  var adOpenUnit = isShowOpenAds ? "ca-app-pub-3940256099942544/3419835294" : "";
+
   /// Load an AppOpenAd.
   void loadAd() {
     AppOpenAd.load(
-      adUnitId: "ca-app-pub-3940256099942544/3419835294",
+      adUnitId: adOpenUnit,
       orientation: AppOpenAd.orientationPortrait,
       request: const AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(

@@ -13,7 +13,9 @@ import 'package:sound_meter/screens/views/reusable_grid_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../google_ads.dart';
+import '../google_ads.dart';
 import '../main.dart';
+import '../provider/db_provider.dart';
 import 'camera_home.dart';
 import 'noise_detector.dart';
 
@@ -44,7 +46,7 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   // interstitle app id
-  var adInterstitaleUnit = adIntUnit;
+  var adInterstitaleUnit = "";
 
   initInterstitialAd() {
     InterstitialAd.load(
@@ -86,16 +88,31 @@ class SplashScreenState extends State<SplashScreen>
     preferences = await SharedPreferences.getInstance();
   }
 
+  bool isShowAds = true;
+
   @override
   void initState() {
     super.initState();
-    initInterstitialAd();
+
+    DbProvider().getShowAdsState().then((value) {
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if (isShowAds == true) {
+        adInterstitaleUnit = adIntUnit;
+        initInterstitialAd();
+      } else {
+        adInterstitaleUnit = "";
+        initInterstitialAd();
+      }
+    });
+
     loadIsPersonalised();
 
     Timer(const Duration(milliseconds: 2500), () {
       // show pop up
 
-      if (isInterstitaleLoaded) {
+      if (isInterstitaleLoaded && isShowAds) {
         if (preferences.getBool("isPersonalised") == true) {
           interstitialAd.show();
         } else {
@@ -145,14 +162,14 @@ class SplashScreenState extends State<SplashScreen>
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      if(isInterstitaleLoaded) {
+                      if (isInterstitaleLoaded) {
                         interstitialAd.show();
-                      } else{
+                      } else {
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    HomeScreen(cameras: cameras, logError: logError)));
+                                builder: (context) => HomeScreen(
+                                    cameras: cameras, logError: logError)));
                       }
                       preferences.setBool("isPersonalised", true);
                       print("preferences.getBool('isPersonalised')");
@@ -282,16 +299,30 @@ class _HomeScreenState extends State<HomeScreen> {
   NativeAd? nativePopUpAd;
   bool isNativePopUpAdLoaded = false;
 
+  bool isShowAds = true;
+  String adUnit = "";
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadNativeAd();
-    loadNativePopUpAd();
+    DbProvider().getShowAdsState().then((value) {
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if (isShowAds == true) {
+        adUnit = adNativeUnit;
+        loadNativeAd();
+        loadNativePopUpAd();
+      } else {
+        adUnit = "";
+        loadNativeAd();
+        loadNativePopUpAd();
+      }
+    });
   }
 
   void loadNativeAd() {
     nativeAd = NativeAd(
-      adUnitId: adNativeUnit,
+      adUnitId: adUnit,
       factoryId: "listTileMedium",
       listener: NativeAdListener(onAdLoaded: (ad) {
         setState(() {
@@ -307,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void loadNativePopUpAd() {
     nativePopUpAd = NativeAd(
-      adUnitId: adNativeUnit,
+      adUnitId: adUnit,
       factoryId: "listTileMedium",
       listener: NativeAdListener(onAdLoaded: (ad) {
         setState(() {
@@ -399,10 +430,48 @@ class _HomeScreenState extends State<HomeScreen> {
                                     SizedBox(
                                       height: 7,
                                     ),
-                                    Image.asset("assets/images/ads.png",
-                                        height: 35,
-                                        width: 30,
-                                        fit: BoxFit.contain),
+                                    GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: const Text('Alert!',
+                                                    style: TextStyle(
+                                                        color: Colors.red)),
+                                                content: const Text(
+                                                    'Are you sure, you want to buy in_app_purchase'),
+                                                actions: [
+                                                  TextButton(
+                                                    child: const Text('Cancel'),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                  TextButton(
+                                                    child: Text('Buy'),
+                                                    onPressed: () {
+                                                      // implement in-app purchase
+                                                      DbProvider()
+                                                          .saveShowAdsState(
+                                                              false);
+
+
+                                                      setState(() {});
+
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            });
+                                      },
+                                      child: Image.asset(
+                                          "assets/images/ads.png",
+                                          height: 35,
+                                          width: 30,
+                                          fit: BoxFit.contain),
+                                    ),
                                   ],
                                 ),
                               ),

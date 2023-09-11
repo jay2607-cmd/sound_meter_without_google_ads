@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sound_meter/screens/screenshot_preview.dart';
 
 import '../google_ads.dart';
+import '../provider/db_provider.dart';
 import '../utils/constants.dart';
 
 class ImageListScreen extends StatefulWidget {
@@ -18,17 +19,31 @@ class _ImageListScreenState extends State<ImageListScreen>
     with WidgetsBindingObserver {
   NativeAd? nativeAd;
   bool isNativeAdLoaded = false;
+  bool isShowAds = true;
+  String adUnit = "";
+
 
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    loadNativeAd();
+    DbProvider().getShowAdsState().then((value) {
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if (isShowAds == true) {
+        adUnit = adNativeUnit;
+        loadNativeAd();
+      } else {
+        adUnit = "";
+        loadNativeAd();
+      }
+    });
   }
 
   void loadNativeAd() {
     nativeAd = NativeAd(
-      adUnitId: adNativeUnit,
+      adUnitId: adUnit,
       factoryId: "listTileMedium",
       listener: NativeAdListener(onAdLoaded: (ad) {
         setState(() {

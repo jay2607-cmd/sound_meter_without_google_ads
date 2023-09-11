@@ -15,6 +15,7 @@ import 'package:video_player/video_player.dart';
 
 import '../google_ads.dart';
 import '../logic/dB_meter.dart';
+import '../provider/db_provider.dart';
 import '../utils/constants.dart';
 import 'live_screenshot.dart';
 
@@ -53,7 +54,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = adBannerUnit;
+  var adUnit = "";
 
   initBannerAd() {
     bannerAd = BannerAd(
@@ -115,16 +116,34 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   double? meanDB;
 
   // interstitle app id
-  var adInterstitaleUnit = adIntUnit;
+  var adInterstitaleUnit = "";
 
   late InterstitialAd interstitialAd;
   bool isInterstitaleLoaded = false;
+  bool isShowAds = true;
 
   @override
   void initState() {
     super.initState();
-    initInterstitialAd();
-    initBannerAd();
+
+    DbProvider().getShowAdsState().then((value) {
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if (isShowAds == true) {
+        adUnit = adNativeUnit;
+        adInterstitaleUnit = adIntUnit;
+        initInterstitialAd();
+        initBannerAd();
+      } else {
+        adUnit = "";
+        adInterstitaleUnit = "";
+
+        initInterstitialAd();
+        initBannerAd();
+      }
+    });
+
     noiseMeter = NoiseMeter(onError);
     WidgetsBinding.instance.addObserver(this);
 
@@ -347,7 +366,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
                                   padding: const EdgeInsets.all(8.0),
                                   child: Container(
                                       decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(30),
+                                          borderRadius:
+                                              BorderRadius.circular(30),
                                           color: Color(0xff4EACD2)),
                                       child: Padding(
                                         padding: const EdgeInsets.all(4.0),
@@ -415,13 +435,13 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
             margin: EdgeInsets.all(5),
             child: isLoaded
                 ? SizedBox(
-                    height: bannerAd.size.height.toDouble(),
-                    width: bannerAd.size.width.toDouble(),
+                    height: 50,
+                    //width: bannerAd.size.width.toDouble(),
                     child: AdWidget(ad: bannerAd),
                   )
                 : SizedBox(
-                    height: bannerAd.size.height.toDouble(),
-                    width: bannerAd.size.width.toDouble(),
+                    height: 50,
+                    //width: bannerAd.size.width.toDouble(),
                   ),
           ),
         ),

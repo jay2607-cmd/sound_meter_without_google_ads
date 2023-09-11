@@ -3,6 +3,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../google_ads.dart';
 import '../../logic/dB_meter.dart';
+import '../../provider/db_provider.dart';
 import '../../utils/constants.dart';
 
 class HistoryMeter extends StatefulWidget {
@@ -26,14 +27,28 @@ class _HistoryMeterState extends State<HistoryMeter>
   bool isInterstitaleLoaded = false;
 
   // interstitle app id
-  var adInterstitaleUnit = adIntUnit;
+  var adInterstitaleUnit = "";
 
   NativeAd? nativeAd;
   bool isNativeAdLoaded = false;
 
+  bool isShowAds = true;
+
   @override
   void initState() {
     super.initState();
+
+    DbProvider().getShowAdsState().then((value) {
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if (isShowAds == true) {
+        initInterstitialAd();
+      } else {
+        adInterstitaleUnit = "";
+        initInterstitialAd();
+      }
+    });
     initInterstitialAd();
   }
 
@@ -55,16 +70,33 @@ class _HistoryMeterState extends State<HistoryMeter>
   //     }
   //   }
   // }
-
+  String adUnit = "";
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadNativeAd();
+
+    DbProvider().getShowAdsState().then((value) {
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if (isShowAds == true) {
+        adUnit = adNativeUnit;
+        adInterstitaleUnit = adIntUnit;
+        initInterstitialAd();
+        loadNativeAd();
+      } else {
+        adUnit = "";
+        adInterstitaleUnit = "";
+
+        initInterstitialAd();
+        loadNativeAd();
+      }
+    });
   }
 
   void loadNativeAd() {
     nativeAd = NativeAd(
-      adUnitId: adNativeUnit,
+      adUnitId: adUnit,
       factoryId: "listTileMedium",
       listener: NativeAdListener(onAdLoaded: (ad) {
         setState(() {

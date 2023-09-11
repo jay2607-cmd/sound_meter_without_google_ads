@@ -6,6 +6,8 @@ import 'package:sound_meter/screens/views/history_meter.dart';
 import '../boxes/boxes.dart';
 import '../database/save_model.dart';
 import '../google_ads.dart';
+import '../main.dart';
+import '../provider/db_provider.dart';
 import '../utils/constants.dart';
 
 class SaveMain extends StatefulWidget {
@@ -55,11 +57,25 @@ class SaveMainState extends State<SaveMain> {
 
     bannerAd.load();
   }
+  bool isShowAds = true;
 
   @override
   void initState() {
     super.initState();
-    initBannerAd();
+    DbProvider().getShowAdsState().then((value) {
+
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if(isShowAds == true) {
+        adUnit = adBannerUnit;
+        initBannerAd();
+      } else{
+        adUnit = "";
+        initBannerAd();
+      }
+
+    });
   }
 
   @override
@@ -268,13 +284,13 @@ class SaveMainState extends State<SaveMain> {
         margin: EdgeInsets.all(5),
         child: isLoaded
             ? SizedBox(
-                height: bannerAd.size.height.toDouble(),
-                width: bannerAd.size.width.toDouble(),
+                height:50,
+                //width: bannerAd.size.width.toDouble(),
                 child: AdWidget(ad: bannerAd),
               )
             : SizedBox(
-                height: bannerAd.size.height.toDouble(),
-                width: bannerAd.size.width.toDouble(),
+                height:50,
+                //width: bannerAd.size.width.toDouble(),
               ),
       ),
     );

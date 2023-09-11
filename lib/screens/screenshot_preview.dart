@@ -6,6 +6,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../google_ads.dart';
+import '../provider/db_provider.dart';
 import '../utils/constants.dart';
 import 'live_screenshot.dart';
 
@@ -32,13 +33,13 @@ class _ScreenshotPreviewState extends State<ScreenshotPreview> {
   bool isInterstitaleLoaded = false;
 
   // interstitle app id
-  var adInterstitaleUnit = adIntUnit;
+  var adInterstitaleUnit = "";
 
   late BannerAd bannerAd;
   bool isLoaded = false;
 
   // testing ad id
-  var adUnit = adBannerUnit;
+  var adUnit = "";
 
   initBannerAd() {
     bannerAd = BannerAd(
@@ -90,11 +91,26 @@ class _ScreenshotPreviewState extends State<ScreenshotPreview> {
     );
   }
 
+  bool isShowAds = true;
+
   @override
   void initState() {
     super.initState();
-    initBannerAd();
-    initInterstitialAd();
+    DbProvider().getShowAdsState().then((value) {
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if (isShowAds == true) {
+        adUnit = adNativeUnit;
+        adInterstitaleUnit = adIntUnit;
+        initInterstitialAd();
+        initBannerAd();
+      } else {
+        adUnit = "";
+        initInterstitialAd();
+        initBannerAd();
+      }
+    });
   }
 
   @override
@@ -225,13 +241,13 @@ class _ScreenshotPreviewState extends State<ScreenshotPreview> {
             margin: EdgeInsets.all(5),
             child: isLoaded
                 ? SizedBox(
-              height: bannerAd.size.height.toDouble(),
-              width: bannerAd.size.width.toDouble(),
+              height:50,
+              //width: bannerAd.size.width.toDouble(),
               child: AdWidget(ad: bannerAd),
             )
                 : SizedBox(
-              height: bannerAd.size.height.toDouble(),
-              width: bannerAd.size.width.toDouble(),
+              height:50,
+              //width: bannerAd.size.width.toDouble(),
             ),
           ),
         ),

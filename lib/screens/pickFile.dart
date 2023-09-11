@@ -640,6 +640,7 @@ import 'package:video_player/video_player.dart';
 
 import '../google_ads.dart';
 import '../logic/dB_meter.dart';
+import '../provider/db_provider.dart';
 import '../utils/constants.dart';
 
 class PickFile extends StatefulWidget {
@@ -734,7 +735,7 @@ class _PickFileState extends State<PickFile> {
   bool isInterstitaleLoaded = false;
 
   // interstitle app id
-  var adInterstitaleUnit = adIntUnit;
+  var adInterstitaleUnit = "";
 
   initInterstitialAd() {
     InterstitialAd.load(
@@ -767,13 +768,28 @@ class _PickFileState extends State<PickFile> {
       }),
     );
   }
+  bool isShowAds = true;
 
   @override
   void initState() {
     super.initState();
     noiseMeter = NoiseMeter(onError);
-    initBannerAd();
-    initInterstitialAd();
+    DbProvider().getShowAdsState().then((value) {
+      isShowAds = value;
+      print("isShowAds sfdfg $isShowAds");
+
+      if (isShowAds == true) {
+        adUnit = adNativeUnit;
+        adInterstitaleUnit = adIntUnit;
+        initInterstitialAd();
+        initBannerAd();
+      } else {
+        adUnit = "";
+        adInterstitaleUnit = "";
+        initInterstitialAd();
+        initBannerAd();
+      }
+    });
   }
 
   @override
@@ -972,13 +988,13 @@ class _PickFileState extends State<PickFile> {
             margin: EdgeInsets.all(5),
             child: isLoaded
                 ? SizedBox(
-                    height: bannerAd.size.height.toDouble(),
-                    width: bannerAd.size.width.toDouble(),
+                    height:50,
+                    //width: bannerAd.size.width.toDouble(),
                     child: AdWidget(ad: bannerAd),
                   )
                 : SizedBox(
-                    height: bannerAd.size.height.toDouble(),
-                    width: bannerAd.size.width.toDouble(),
+                    height:50,
+                    //width: bannerAd.size.width.toDouble(),
                   ),
           ),
         ),
