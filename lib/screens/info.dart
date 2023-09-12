@@ -126,3 +126,4 @@ class _InfoState extends State<Info> {
     );
   }
 }
+
