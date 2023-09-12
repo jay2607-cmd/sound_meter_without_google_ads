@@ -1,4 +1,4 @@
-package com.example.sound_meter;
+package com.brb.sounddeciblemeter.j;
 
 import android.content.Context;
 import android.view.LayoutInflater;

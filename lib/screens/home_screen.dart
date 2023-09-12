@@ -13,7 +13,6 @@ import 'package:sound_meter/screens/views/reusable_grid_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../google_ads.dart';
-import '../google_ads.dart';
 import '../main.dart';
 import '../provider/db_provider.dart';
 import 'camera_home.dart';
@@ -244,7 +243,6 @@ class SplashScreenState extends State<SplashScreen>
         ),
       ),
     );
-
   }*/
   @override
   Widget build(BuildContext context) {
@@ -265,15 +263,18 @@ class SplashScreenState extends State<SplashScreen>
                 width: 155,
               ),
               SizedBox(
-                height: 30,
+                height: 15,
               ),
               Text(
-                "Noise",
-                style: TextStyle(fontSize: 35),
+                "Audio Sound",
+                style: TextStyle(fontSize: 23.5),
+              ),
+              SizedBox(
+                height: 2,
               ),
               Text(
-                "Detector",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35),
+                "Decibel Meter",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22.5),
               ),
             ],
           ),
@@ -382,15 +383,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Padding(
                         padding:
-                            const EdgeInsets.only(left: 8, right: 8, top: 4),
+                            const EdgeInsets.only(left: 18, right: 18, top: 16,bottom: 8),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           // crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Image.asset(
                               "assets/images/firstpage_icon.png",
-                              height: 80,
-                              width: 80,
+                              height: 75,
+                              width: 75,
                               fit: BoxFit.contain,
                             ),
                             Column(
@@ -399,7 +400,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Image.asset(
                                   "assets/images/appname.png",
                                   height: 80,
-                                  width: 150,
+                                  width: 160,
                                   fit: BoxFit.contain,
                                 ),
                               ],
@@ -427,51 +428,42 @@ class _HomeScreenState extends State<HomeScreen> {
                                           width: 30,
                                           fit: BoxFit.contain),
                                     ),
-                                    SizedBox(
-                                      height: 7,
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: const Text('Alert!',
-                                                    style: TextStyle(
-                                                        color: Colors.red)),
-                                                content: const Text(
-                                                    'Are you sure, you want to buy in_app_purchase'),
-                                                actions: [
-                                                  TextButton(
-                                                    child: const Text('Cancel'),
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                  TextButton(
-                                                    child: Text('Buy'),
-                                                    onPressed: () {
-                                                      // implement in-app purchase
-                                                      DbProvider()
-                                                          .saveShowAdsState(
-                                                              false);
-
-
-                                                      setState(() {});
-
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                ],
-                                              );
-                                            });
-                                      },
-                                      child: Image.asset(
-                                          "assets/images/ads.png",
-                                          height: 35,
-                                          width: 30,
-                                          fit: BoxFit.contain),
-                                    ),
+                                    // GestureDetector(
+                                    //   onTap: () {
+                                    //     showDialog(
+                                    //         context: context,
+                                    //         builder: (BuildContext context) {
+                                    //           return AlertDialog(
+                                    //             title: const Text('Alert!',
+                                    //                 style: TextStyle(
+                                    //                     color: Colors.red)),
+                                    //             content: const Text(
+                                    //                 'Are you sure, you want to buy in_app_purchase'),
+                                    //             actions: [
+                                    //               TextButton(
+                                    //                 child: const Text('Cancel'),
+                                    //                 onPressed: () {
+                                    //                   Navigator.pop(context);
+                                    //                 },
+                                    //               ),
+                                    //               TextButton(
+                                    //                 child: Text('Buy'),
+                                    //                 onPressed: () {
+                                    //                   setState(() {});
+                                    //
+                                    //                   Navigator.pop(context);
+                                    //                 },
+                                    //               ),
+                                    //             ],
+                                    //           );
+                                    //         });
+                                    //   },
+                                    //   child: Image.asset(
+                                    //       "assets/images/ads.png",
+                                    //       height: 35,
+                                    //       width: 30,
+                                    //       fit: BoxFit.contain),
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -531,17 +523,20 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          bottomNavigationBar: isNativeAdLoaded
-              ? Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                  ),
-                  height: 265,
-                  child: AdWidget(
-                    ad: nativeAd!,
-                  ),
-                )
-              : SizedBox(),
+          bottomNavigationBar: Visibility(
+            visible: isShowAds,
+            child: isNativeAdLoaded
+                ? Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    height: 265,
+                    child: AdWidget(
+                      ad: nativeAd!,
+                    ),
+                  )
+                : SizedBox(),
+          ),
         ),
       ),
     );
@@ -569,14 +564,17 @@ class _HomeScreenState extends State<HomeScreen> {
               Column(
                 children: [
                   isNativePopUpAdLoaded
-                      ? Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                          ),
-                          height: 265,
-                          width: 300,
-                          child: AdWidget(
-                            ad: nativePopUpAd!,
+                      ? Visibility(
+                          visible: isShowAds,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                            ),
+                            height: 265,
+                            width: 300,
+                            child: AdWidget(
+                              ad: nativePopUpAd!,
+                            ),
                           ),
                         )
                       : SizedBox(),

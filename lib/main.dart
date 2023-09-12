@@ -26,7 +26,7 @@ bool verifyInstallerId() {
   ];
 
   // The package name of the app that has installed your app
-  final String installer = "com.example.sound_meter";
+  final String installer = "com.brb.sounddeciblemeter.j";
 
   // true if your app has been downloaded from Play Store
   return installer != null && validInstallers.contains(installer);
@@ -129,14 +129,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
         debugShowCheckedModeBanner: false,
         title: "Sound Meter",
         theme: ThemeData(
-          // Set the default text style to Montserrat
           fontFamily: "Montserrat",
-          textTheme: TextTheme(
-            //
-            // bodyLarge: TextStyle(fontSize: 16),
-            // bodyMedium: TextStyle(fontSize: 16),
-          ),
-
         ),
         home: const SplashScreen());
   }

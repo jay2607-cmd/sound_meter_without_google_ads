@@ -3,7 +3,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:sound_meter/screens/user_consent.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../app_purchase.dart';
 import 'license_credit.dart';
 
 class Info extends StatefulWidget {

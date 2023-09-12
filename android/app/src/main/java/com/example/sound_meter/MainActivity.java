@@ -1,4 +1,4 @@
-package com.example.sound_meter;
+package com.brb.sounddeciblemeter.j;
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.engine.FlutterEngine;
