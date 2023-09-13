@@ -3,6 +3,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:sound_meter/screens/user_consent.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../google_ads.dart';
+import '../webview.dart';
 import 'license_credit.dart';
 
 class Info extends StatefulWidget {
@@ -15,10 +17,29 @@ class Info extends StatefulWidget {
 class _InfoState extends State<Info> {
   var toLaunch;
 
+  // _launchURLBrowser() async {
+  //   const url = 'http://ec2-18-116-59-188.us-east-2.compute.amazonaws.com/RonrajTech/RonrajTechPrivacyPolicy.html';
+  //   if (await canLaunch(url)) {
+  //     await launch(url);
+  //   } else {
+  //     throw 'Could not launch $url';
+  //   }
+  // }
+
+  _launchURLInApp(BuildContext context) {
+    const url = kPrivacyPolicy;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => WebViewScreen(url: url),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     toLaunch = Uri.parse(
-        'https://play.google.com/store/apps/details?id=com.expressway.noisedetector.sm&pli=1');
+        kShareUrl);
 
     Future<void>? _launched;
     Future<void> _launchInBrowser(Uri url) async {
@@ -59,14 +80,14 @@ class _InfoState extends State<Info> {
             GestureDetector(
               onTap: () {
                 Share.share(
-                    "https://play.google.com/store/apps/details?id=com.expressway.noisedetector.sm&pli=1");
+                    kShareUrl);
               },
               child: ListTile(
                 title: Text("Share App"),
                 trailing: IconButton(
                   onPressed: () {
                     Share.share(
-                        "https://play.google.com/store/apps/details?id=com.expressway.noisedetector.sm&pli=1");
+                        kShareUrl);
                   },
                   icon: Icon(Icons.arrow_forward_ios_sharp),
                 ),
@@ -89,13 +110,18 @@ class _InfoState extends State<Info> {
               ),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                _launchURLInApp(context);
+              },
               child: ListTile(
                 title: Text(
                   "Privacy & Policy",
                 ),
                 trailing: IconButton(
-                  onPressed: () {},
+
+                  onPressed: () {
+                    _launchURLInApp(context);
+                  },
                   icon: Icon(Icons.arrow_forward_ios_sharp),
                 ),
               ),

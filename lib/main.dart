@@ -26,7 +26,7 @@ bool verifyInstallerId() {
   ];
 
   // The package name of the app that has installed your app
-  final String installer = "com.brb.sounddeciblemeter.j";
+  final String installer = "com.ronrajtech.jg.sounddeciblemeter";
 
   // true if your app has been downloaded from Play Store
   return installer != null && validInstallers.contains(installer);
@@ -61,7 +61,13 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
   ]);
 
+  // true if it's downloaded from play store
   bool showAds = verifyInstallerId();
+
+  if(!showAds) {
+    // stop the ads
+  }
+
   print("showAds $showAds");
   runApp(const MyApp());
 }

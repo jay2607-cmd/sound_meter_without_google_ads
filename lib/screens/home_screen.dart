@@ -30,9 +30,9 @@ class SplashScreenState extends State<SplashScreen>
   late InterstitialAd interstitialAd;
   bool isInterstitaleLoaded = false;
 
-  var privacyPolicy = Uri.parse('https://www.google.com/');
+  var privacyPolicy = Uri.parse(kPrivacyPolicy);
 
-  var dataUsage = Uri.parse('https://www.google.com/');
+  var dataUsage = Uri.parse(kPrivacyPolicy);
 
   Future<void>? _launched;
   Future<void> _launchInBrowser(Uri url) async {
