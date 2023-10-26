@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:sound_meter/screens/pickFile.dart';
 import 'package:sound_meter/screens/views/reusable_grid_view.dart';
@@ -43,6 +44,16 @@ String adUnit = "";
         loadNativeAd();
       }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Fluttertoast.showToast(
+      msg: "is Ad from PlayStore In Activity Check : $isShowAds",
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.CENTER,
+    );
   }
 
   void loadNativeAd() {

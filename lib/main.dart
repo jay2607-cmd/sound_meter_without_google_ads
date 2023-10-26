@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive/hive.dart';
 
@@ -8,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sound_meter/provider/db_provider.dart';
 import 'package:sound_meter/screens/home_screen.dart';
+import 'package:store_checker/store_checker.dart';
 
 import 'database/save_model.dart';
 
@@ -29,16 +31,15 @@ bool verifyInstallerId() {
   final String installer = "com.ronrajtech.jg.sounddeciblemeter";
 
   // true if your app has been downloaded from Play Store
-  return installer != null && validInstallers.contains(installer);
+  return validInstallers.contains(installer);
 }
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
 
   SharedPreferences preferences = await SharedPreferences.getInstance();
-  if(preferences.getBool("isPersonalised") == null) {
+  if (preferences.getBool("isPersonalised") == null) {
     preferences.setBool("isPersonalised", false);
   }
 
@@ -55,20 +56,117 @@ Future<void> main() async {
 
   await Hive.openBox<SaveModel>("savedB");
 
-
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitDown,
     DeviceOrientation.portraitUp,
   ]);
 
   // true if it's downloaded from play store
-  bool showAds = verifyInstallerId();
+  // bool showAds = verifyInstallerId();
 
-  if(!showAds) {
-    // stop the ads
+  Source installationSource = await StoreChecker.getSource;
+
+  String source = "";
+
+  switch (installationSource) {
+    case Source.IS_INSTALLED_FROM_PLAY_STORE:
+      // Installed from Play Store
+      source = "Play Store";
+      Fluttertoast.showToast(
+        msg: "is Ad from PlayStore: $source",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+      break;
+
+    case Source.IS_INSTALLED_FROM_PLAY_PACKAGE_INSTALLER:
+      // Installed from Google Package installer
+      source = "Google Package installer";
+      DbProvider().saveShowAdsState(false);
+      break;
+    case Source.IS_INSTALLED_FROM_LOCAL_SOURCE:
+      // Installed using adb commands or side loading or any cloud service
+      source = "Local Source";
+      DbProvider().saveShowAdsState(false);
+      break;
+    case Source.IS_INSTALLED_FROM_AMAZON_APP_STORE:
+      // Installed from Amazon app store
+      source = "Amazon Store";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.IS_INSTALLED_FROM_HUAWEI_APP_GALLERY:
+      // Installed from Huawei app store
+      source = "Huawei App Gallery";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.IS_INSTALLED_FROM_SAMSUNG_GALAXY_STORE:
+      // Installed from Samsung app store
+      source = "Samsung Galaxy Store";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.IS_INSTALLED_FROM_SAMSUNG_SMART_SWITCH_MOBILE:
+      // Installed from Samsung Smart Switch Mobile
+      source = "Samsung Smart Switch Mobile";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.IS_INSTALLED_FROM_XIAOMI_GET_APPS:
+      // Installed from Xiaomi app store
+      source = "Xiaomi Get Apps";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.IS_INSTALLED_FROM_OPPO_APP_MARKET:
+      // Installed from Oppo app store
+      source = "Oppo App Market";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.IS_INSTALLED_FROM_VIVO_APP_STORE:
+      // Installed from Vivo app store
+      source = "Vivo App Store";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.IS_INSTALLED_FROM_RU_STORE:
+      // Installed apk from RuStore
+      source = "RuStore";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.IS_INSTALLED_FROM_OTHER_SOURCE:
+      // Installed from other market store
+      source = "Other Source";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.IS_INSTALLED_FROM_APP_STORE:
+      // Installed from app store
+      source = "App Store";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.IS_INSTALLED_FROM_TEST_FLIGHT:
+      // Installed from Test Flight
+      source = "Test Flight";
+      DbProvider().saveShowAdsState(false);
+
+      break;
+    case Source.UNKNOWN:
+      // Installed from Unknown source
+      source = "Unknown Source";
+      DbProvider().saveShowAdsState(false);
+      Fluttertoast.showToast(
+        msg: "is Ad from PlayStore: $source",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+      break;
   }
 
-  print("showAds $showAds");
   runApp(const MyApp());
 }
 
@@ -126,14 +224,15 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      builder: (context,child) {
-        final MediaQueryData data = MediaQuery.of(context);
-        return MediaQuery(
-          data: data.copyWith(textScaleFactor: 1.0), child: child!,
-        );
-      },
+        builder: (context, child) {
+          final MediaQueryData data = MediaQuery.of(context);
+          return MediaQuery(
+            data: data.copyWith(textScaleFactor: 1.0),
+            child: child!,
+          );
+        },
         debugShowCheckedModeBanner: false,
-        title: "Sound Meter",
+        title: "Audio Sound Decibel Meter",
         theme: ThemeData(
           fontFamily: "Montserrat",
         ),
@@ -148,7 +247,8 @@ class AppOpenAdManager {
   bool _isShowingAd = false;
   static bool isLoaded = false;
 
-  var adOpenUnit = isShowOpenAds ? "ca-app-pub-3940256099942544/3419835294" : "";
+  var adOpenUnit =
+      isShowOpenAds ? "ca-app-pub-6839127603684379/9859253770" : "";
 
   /// Load an AppOpenAd.
   void loadAd() {

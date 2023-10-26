@@ -35,6 +35,7 @@ class SplashScreenState extends State<SplashScreen>
   var dataUsage = Uri.parse(kPrivacyPolicy);
 
   Future<void>? _launched;
+
   Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
       url,
@@ -83,6 +84,7 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   late SharedPreferences preferences;
+
   loadIsPersonalised() async {
     preferences = await SharedPreferences.getInstance();
   }
@@ -108,7 +110,7 @@ class SplashScreenState extends State<SplashScreen>
 
     loadIsPersonalised();
 
-    Timer(const Duration(milliseconds: 2500), () {
+    Timer(const Duration(milliseconds: 3000), () {
       // show pop up
 
       if (isInterstitaleLoaded && isShowAds) {
@@ -146,9 +148,12 @@ class SplashScreenState extends State<SplashScreen>
                   width: 40,
                 ),
                 SizedBox(
-                  width: 20,
+                  width: 15,
                 ),
-                Text('Sound Meter'),
+                Text(
+                  'Audio Sound Decibel Meter',
+                  style: TextStyle(fontSize: 16),
+                ),
               ],
             ),
             content: Text(
@@ -287,6 +292,7 @@ class SplashScreenState extends State<SplashScreen>
 class HomeScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
   final Function logError;
+
   HomeScreen({super.key, required this.cameras, required this.logError});
 
   @override
@@ -302,6 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool isShowAds = true;
   String adUnit = "";
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -354,6 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   var toLaunch;
+
   @override
   Widget build(BuildContext context) {
     toLaunch = Uri.parse(
@@ -382,8 +390,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding:
-                            const EdgeInsets.only(left: 18, right: 18, top: 16,bottom: 8),
+                        padding: const EdgeInsets.only(
+                            left: 18, right: 18, top: 16, bottom: 8),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           // crossAxisAlignment: CrossAxisAlignment.center,
@@ -543,6 +551,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void>? _launched;
+
   Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
       url,
