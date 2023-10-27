@@ -10,6 +10,7 @@ import 'package:sound_meter/screens/info.dart';
 import 'package:sound_meter/screens/recorder_homeview.dart';
 import 'package:sound_meter/screens/save_main.dart';
 import 'package:sound_meter/screens/views/reusable_grid_view.dart';
+import 'package:sound_meter/ump_consent/initialize_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../google_ads.dart';
@@ -113,24 +114,32 @@ class SplashScreenState extends State<SplashScreen>
     Timer(const Duration(milliseconds: 3000), () {
       // show pop up
 
-      if (isInterstitaleLoaded && isShowAds) {
-        if (preferences.getBool("isPersonalised") == true) {
-          interstitialAd.show();
-        } else {
-          showExitPopup();
-        }
-      } else {
-        if (preferences.getBool("isPersonalised") == true) {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      HomeScreen(cameras: cameras, logError: logError)));
-        } else {
-          // show pop
-          showExitPopup();
-        }
-      }
+      // if (isInterstitaleLoaded && isShowAds) {
+      //   if (preferences.getBool("isPersonalised") == true) {
+      //     interstitialAd.show();
+      //   } else {
+      //     showExitPopup();
+      //   }
+      // } else {
+      //   if (preferences.getBool("isPersonalised") == true) {
+      // Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(
+      //         builder: (context) =>
+      //             HomeScreen(cameras: cameras, logError: logError)));
+
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => InitializeScreen(
+                    targetWidget:
+                        HomeScreen(cameras: cameras, logError: logError),
+                  )));
+      // } else {
+      //   // show pop
+      //   showExitPopup();
+      // }
+      // }
     });
   }
 
