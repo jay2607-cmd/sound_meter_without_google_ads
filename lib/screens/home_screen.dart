@@ -96,20 +96,20 @@ class SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    DbProvider().getShowAdsState().then((value) {
-      isShowAds = value;
-      print("isShowAds sfdfg $isShowAds");
+    // DbProvider().getShowAdsState().then((value) {
+    //   isShowAds = value;
+    //   print("isShowAds sfdfg $isShowAds");
+    //
+    //   if (isShowAds == true) {
+    //     adInterstitaleUnit = adIntUnit;
+    //     initInterstitialAd();
+    //   } else {
+    //     adInterstitaleUnit = "";
+    //     initInterstitialAd();
+    //   }
+    // });
 
-      if (isShowAds == true) {
-        adInterstitaleUnit = adIntUnit;
-        initInterstitialAd();
-      } else {
-        adInterstitaleUnit = "";
-        initInterstitialAd();
-      }
-    });
-
-    loadIsPersonalised();
+    // loadIsPersonalised();
 
     Timer(const Duration(milliseconds: 3000), () {
       // show pop up

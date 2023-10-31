@@ -224,13 +224,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        builder: (context, child) {
-          final MediaQueryData data = MediaQuery.of(context);
-          return MediaQuery(
-            data: data.copyWith(textScaleFactor: 1.0),
-            child: child!,
-          );
-        },
         debugShowCheckedModeBanner: false,
         title: "Audio Sound Decibel Meter",
         theme: ThemeData(

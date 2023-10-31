@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:device_info/device_info.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-List<String> deviceIDList = [];
+/*List<String> deviceIDList = [];
 
 Future<void> getDeviceId() async {
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -23,7 +23,7 @@ Future<void> getDeviceId() async {
   print('Device ID: $deviceId');
   deviceIDList.add(deviceId);
   print('deviceIDList ID: ${deviceIDList.first}');
-}
+}*/
 
 class InitializationHelper {
   Future<FormError?> initialize() async {
@@ -32,11 +32,14 @@ class InitializationHelper {
 
     final params = ConsentRequestParameters(
         consentDebugSettings: ConsentDebugSettings(
-      debugGeography: DebugGeography.debugGeographyEea,
-      // testIdentifiers: deviceIDList,
-    ));
+            debugGeography: DebugGeography.debugGeographyEea,
+            testIdentifiers: ['A0C6D9F0E3AD645EC4931A64BAB8ACD4']
+            // testIdentifiers: deviceIDList,
+            ));
+
     ConsentInformation.instance.requestConsentInfoUpdate(params, () async {
       if (await ConsentInformation.instance.isConsentFormAvailable()) {
+        print("in if");
         await _loadConsentForm();
       } else {
         // There is no message to display,
@@ -54,7 +57,6 @@ class InitializationHelper {
 
   Future<FormError?> _loadConsentForm() async {
     final completer = Completer<FormError?>();
-
 
     ConsentForm.loadConsentForm((consentForm) async {
       final status = await ConsentInformation.instance.getConsentStatus();
